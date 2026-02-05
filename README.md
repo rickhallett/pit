@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/logo.png" alt="pit logo" width="128" />
+  <img src="./assets/logo.svg" alt="pit logo" width="200" />
 </p>
 
 <h1 align="center">pit</h1>
