@@ -1,0 +1,29 @@
+{
+  "name": "The Darwin Special",
+  "premise": "Evolution meets disruption. Darwin defends natural selection against tech optimism, conspiracy theories, and feline indifference.",
+  "tone": "Intellectual chaos with comedic undertones",
+  "featured": true,
+  "user_input": false,
+  "agents": [
+    {
+      "id": "darwin",
+      "name": "Darwin",
+      "role": "The Naturalist"
+    },
+    {
+      "id": "tech-bro",
+      "name": "Tech Bro",
+      "role": "The Disruptor"
+    },
+    {
+      "id": "conspiracy-theorist",
+      "name": "Conspiracy Theorist",
+      "role": "The Skeptic"
+    },
+    {
+      "id": "house-cat",
+      "name": "House Cat",
+      "role": "The Indifferent"
+    }
+  ]
+}

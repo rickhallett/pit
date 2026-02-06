@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# gate — Quality gate script for The Pit
+# Exit 0 = ship. Exit non-zero = fix.
+
+set -e
+
+echo "🚪 GATE — Quality checks starting..."
+echo ""
+
+# Backend checks
+echo "🐍 Backend (Python)"
+echo "==================="
+
+cd "$(dirname "$0")/../be"
+
+echo "→ Lint (ruff)..."
+uv run ruff check src/ tests/ --fix
+
+echo "→ Format (ruff)..."
+uv run ruff format src/ tests/
+
+echo "→ Import validation..."
+PYTHONPATH=src uv run python -c "import pit_api; print(f'  pit_api v{pit_api.__version__} OK')"
+
+echo "→ Tests (pytest)..."
+if compgen -G "tests/test_*.py" > /dev/null; then
+    PYTHONPATH=src uv run pytest tests/ -v --tb=short
+else
+    echo "  (No test files found — skipping)"
+fi
+
+echo ""
+echo "✅ Backend checks passed"
+echo ""
+
+# Frontend checks (if fe directory has been scaffolded)
+if [ -d "../fe/node_modules" ]; then
+    echo "⚛️  Frontend (Next.js)"
+    echo "====================="
+    
+    cd ../fe
+    
+    echo "→ Lint (eslint)..."
+    npm run lint
+    
+    echo "→ Type check (tsc)..."
+    npm run type-check
+    
+    echo "→ Build..."
+    npm run build
+    
+    echo ""
+    echo "✅ Frontend checks passed"
+else
+    echo "⚛️  Frontend: Skipped (not scaffolded yet)"
+fi
+
+echo ""
+echo "🚪 GATE PASSED — Ship it!"
