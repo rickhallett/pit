@@ -130,7 +130,7 @@ export default function Home() {
       <HowItWorks />
 
       {/* Fighter Selection */}
-      <section className="border-b-4 border-white bg-black py-20">
+      <section id="fighters" className="border-b-4 border-white bg-black py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-16 flex items-end justify-between">
             <div>

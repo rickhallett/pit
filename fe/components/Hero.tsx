@@ -1,6 +1,13 @@
 "use client";
 
 export default function Hero() {
+  const scrollToFighters = () => {
+    const fightersSection = document.getElementById("fighters");
+    if (fightersSection) {
+      fightersSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section className="relative overflow-hidden border-b-4 border-white bg-black py-20 md:py-32">
       {/* Background grid effect */}
@@ -42,7 +49,10 @@ export default function Hero() {
           </p>
 
           {/* CTA */}
-          <button className="group relative overflow-hidden border-4 border-white bg-accent px-12 py-4 font-black uppercase tracking-wider text-black transition-all hover:bg-white hover:text-black">
+          <button
+            onClick={scrollToFighters}
+            className="group relative overflow-hidden border-4 border-white bg-accent px-12 py-4 font-black uppercase tracking-wider text-black transition-all hover:bg-white hover:text-black"
+          >
             <span className="relative z-10">Enter the Arena</span>
             <div className="absolute inset-0 -translate-x-full bg-white transition-transform group-hover:translate-x-0"></div>
           </button>
