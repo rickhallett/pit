@@ -1,0 +1,36 @@
+[project]
+name = "pit-api"
+version = "0.1.0"
+description = "The Pit — AI Battle Arena Backend"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.18.3",
+    "anthropic>=0.78.0",
+    "flask>=3.1.2",
+    "flask-cors>=6.0.2",
+    "nanoid>=2.0.0",
+    "psycopg2-binary>=2.9.11",
+    "pytest>=9.0.2",
+    "python-dotenv>=1.2.1",
+    "ruff>=0.15.0",
+    "sqlalchemy>=2.0.46",
+]
+
+[project.scripts]
+pit-api = "pit_api.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+src = ["src", "tests"]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
