@@ -1,0 +1,50 @@
+[
+  {
+    "timestamp": "2026-02-06T15:00:00Z",
+    "agent": "HAL",
+    "action": "Created MANIFEST.md, HANDOFF.md, flight_recorder.json",
+    "justification": "Operation MEMENTO — implementing grounding protocols after the Poker Incident"
+  },
+  {
+    "timestamp": "2026-02-06T14:40:00Z",
+    "agent": "Architect",
+    "action": "Created PR #11: Cost ceiling implementation",
+    "justification": "Sprint backlog item — wire up per-tier cost ceilings to prevent runaway API costs"
+  },
+  {
+    "timestamp": "2026-02-06T14:50:00Z",
+    "agent": "Architect",
+    "action": "Created PR #12: E2E smoke tests + preset loader fixes",
+    "justification": "Sprint backlog item — tests + bug fixes discovered during test creation"
+  },
+  {
+    "timestamp": "2026-02-06T15:00:00Z",
+    "agent": "Architect",
+    "action": "Created PR #13: Deployment prep — Dockerfiles, compose, docs",
+    "justification": "Sprint backlog item — production deployment infrastructure"
+  },
+  {
+    "timestamp": "2026-02-06T15:50:00Z",
+    "agent": "Architect",
+    "action": "Merged PRs #11, #12, #13",
+    "justification": "Kai approved merge — cost ceiling, tests, and deployment prep now on main"
+  },
+  {
+    "timestamp": "2026-02-06T15:52:00Z",
+    "agent": "Architect",
+    "action": "Created PR #14: Share URL alias /b/[id]",
+    "justification": "Launch blocker — share links were 404ing due to URL mismatch"
+  },
+  {
+    "timestamp": "2026-02-06T15:55:00Z",
+    "agent": "Architect",
+    "action": "Created PR #15: Frontend share UI",
+    "justification": "Launch blocker — users had no way to share completed bouts"
+  },
+  {
+    "timestamp": "2026-02-06T16:00:00Z",
+    "agent": "Architect",
+    "action": "Created PR #16: Frontend waitlist form + metrics",
+    "justification": "Launch blocker — users had no way to join waitlist + missing metrics logging"
+  }
+]
