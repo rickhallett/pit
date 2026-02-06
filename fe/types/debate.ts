@@ -101,6 +101,8 @@ export interface PresetConfig {
   // === User Input ===
   /** Whether user must provide a topic/prompt */
   inputRequired: boolean;
+  /** Whether user can optionally provide context (works without) */
+  inputOptional?: boolean;
   /** Placeholder text for input field */
   inputHint?: string;
   /** Example inputs to show */
@@ -130,6 +132,7 @@ export interface PresetConfigRaw {
   featured?: boolean;
   launch_day_hero?: boolean;
   requires_input?: boolean;
+  input_optional?: boolean;
   input_label?: string;
   input_examples?: string[];
   default_input?: string;
@@ -287,6 +290,7 @@ export function parsePreset(raw: PresetConfigRaw): PresetConfig {
     agents: raw.agents.map(parseAgent),
     recommendedTurns: raw.max_turns?.standard ?? 12,
     inputRequired: raw.requires_input ?? false,
+    inputOptional: raw.input_optional,
     inputHint: raw.input_label,
     inputExamples: raw.input_examples,
     defaultInput: raw.default_input,

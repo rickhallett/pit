@@ -109,21 +109,28 @@ export function validateUserInput(
   preset: PresetConfig,
   input: string
 ): InputValidation {
-  // If input is not required, anything is valid
-  if (!preset.inputRequired) {
+  // If input is not required (and not optional with content), anything is valid
+  if (!preset.inputRequired && !preset.inputOptional) {
     return { isValid: true };
   }
 
-  // Input required but empty
-  const trimmed = input.trim();
-  if (trimmed.length === 0) {
+  // If optional with no input, that's fine
+  if (preset.inputOptional && input.trim().length === 0) {
+    return { isValid: true };
+  }
+
+  // If required but empty, invalid
+  if (preset.inputRequired && input.trim().length === 0) {
     return {
       isValid: false,
       error: preset.inputHint || 'Please enter a topic',
     };
   }
 
-  // Minimum length check
+  // Validate content if provided
+  const trimmed = input.trim();
+
+  // Minimum length check (only if content provided)
   if (trimmed.length < 3) {
     return {
       isValid: false,
