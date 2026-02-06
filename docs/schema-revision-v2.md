@@ -2,178 +2,167 @@
 
 **Author:** Analyst  
 **Date:** 2026-02-06  
-**Status:** Draft for Review  
-**Addresses:** Architect's multi-agent vs 1v1 concern
-
----
-
-## Context
-
-The existing schema (in `be/src/pit_api/models/`) was reviewed and found to be **already oriented toward multi-agent**, not 1v1 comparison:
-
-| Existing | Status | Notes |
-|----------|--------|-------|
-| `bouts.preset_id` | ✅ Present | Links to preset formats |
-| `bouts.agent_count` | ✅ Present | Variable, default 4 |
-| `bouts.model_a/model_b` | ❌ Not present | Correct — this would be 1v1 |
-| `messages.agent_name` | ✅ Present | Named characters, not slot A/B |
-| `messages.turn_number` | ✅ Present | Sequential turns |
-| `waitlist` | ✅ Present | Email capture |
-| `metrics` | ✅ Present | Analytics events |
-
-**What's missing:**
-1. `bout_agents` junction table (explicit agent roster per bout)
-2. Voting/outcome tracking
-3. Optional: `users` table for auth (v0.2)
-
----
-
-## Proposed Additions
-
-### 1. `bout_agents` — Junction Table
-
-Why: Currently, agent identity is embedded in each `message` (agent_name, agent_role). This works but has limitations:
-- No upfront roster definition before bout starts
-- No explicit turn order guarantee
-- Per-bout persona customization buried in message metadata
-
-```python
-class BoutAgent(Base):
-    """Links agents to bouts with configuration."""
-    
-    __tablename__ = "bout_agents"
-    
-    id = Column(String(12), primary_key=True, default=generate_id)
-    bout_id = Column(String(10), ForeignKey("bouts.id"), nullable=False, index=True)
-    agent_name = Column(String(100), nullable=False)
-    agent_role = Column(String(200), nullable=True)
-    persona_config = Column(JSONB, nullable=True)  # per-bout overrides
-    turn_order = Column(Integer, nullable=False)   # 0-indexed position
-    model_override = Column(String(50), nullable=True)  # agent-specific model
-    created_at = Column(DateTime(timezone=True), default=now_utc)
-    
-    __table_args__ = (
-        Index("ix_bout_agents_bout_turn", "bout_id", "turn_order"),
-        UniqueConstraint("bout_id", "turn_order", name="uq_bout_turn"),
-    )
-```
-
-**Benefits:**
-- Engine can validate agent roster before first API call
-- Turn order is explicit and queryable
-- Persona config lives with the agent assignment, not per-message
-- Messages can FK to `bout_agents.id` instead of duplicating name/role
-
-### 2. `votes` — Outcome Tracking
-
-Why: Multi-agent arena needs ranking/survival voting, not binary A/B.
-
-```python
-class Vote(Base):
-    """User vote on a bout outcome."""
-    
-    __tablename__ = "votes"
-    
-    id = Column(String(12), primary_key=True, default=generate_id)
-    bout_id = Column(String(10), ForeignKey("bouts.id"), nullable=False, index=True)
-    vote_type = Column(String(20), nullable=False)  # "winner", "ranking", "survival"
-    
-    # For "winner" type — single agent selection
-    winner_agent = Column(String(100), nullable=True)
-    
-    # For "ranking" type — ordered list
-    ranking = Column(JSONB, nullable=True)  # ["agent_1", "agent_2", ...]
-    
-    # For "survival" type — who should stay
-    survivors = Column(JSONB, nullable=True)  # ["agent_1", "agent_3"]
-    
-    ip_hash = Column(String(64), nullable=True)  # anon voter tracking
-    user_id = Column(String(12), nullable=True)  # future: authenticated users
-    created_at = Column(DateTime(timezone=True), default=now_utc)
-    
-    __table_args__ = (
-        Index("ix_votes_bout_created", "bout_id", "created_at"),
-    )
-```
-
-**Vote aggregation query:**
-```sql
--- Winner votes per agent
-SELECT winner_agent, COUNT(*) as votes
-FROM votes
-WHERE bout_id = ? AND vote_type = 'winner'
-GROUP BY winner_agent
-ORDER BY votes DESC;
-```
-
-### 3. `bout_outcomes` — Aggregated Results (Optional)
-
-For performance, cache aggregated vote results:
-
-```python
-class BoutOutcome(Base):
-    """Cached aggregated voting results."""
-    
-    __tablename__ = "bout_outcomes"
-    
-    bout_id = Column(String(10), ForeignKey("bouts.id"), primary_key=True)
-    total_votes = Column(Integer, nullable=False, default=0)
-    results = Column(JSONB, nullable=False)  # {"agent_1": 45, "agent_2": 32, ...}
-    winner = Column(String(100), nullable=True)  # null if tie or incomplete
-    updated_at = Column(DateTime(timezone=True), default=now_utc)
-```
-
----
-
-## Migration Path
-
-### Phase 1: Add without breaking (MVP)
-
-1. Create `bout_agents` table
-2. Create `votes` table
-3. Engine populates `bout_agents` when bout starts
-4. `messages` continues to work as-is (backward compatible)
-
-### Phase 2: Normalize (post-MVP)
-
-1. Add `bout_agent_id` FK to `messages`
-2. Deprecate `agent_name`/`agent_role` columns on messages
-3. Migrate existing data
-
-### Phase 3: Auth integration (v0.2)
-
-1. Add `users` table
-2. Link `votes.user_id` for authenticated voting
-3. Unlock features for logged-in users
-
----
-
-## Questions for Architect
-
-1. **Agent identity:** Should `bout_agents` reference a shared `agents` table (reusable personas), or is name+role sufficient for MVP?
-   
-   *Analyst recommendation:* Name+role sufficient for MVP. Shared agents table adds complexity without clear v0 benefit.
-
-2. **Voting UX:** Is voting per-bout-completion, or can users vote mid-bout?
-   
-   *Affects:* Whether `votes` needs a `message_id` FK for "vote after message N"
-
-3. **Message FK:** Should `messages.agent_name` become `messages.bout_agent_id` FK immediately, or keep denormalized for MVP speed?
-   
-   *Analyst recommendation:* Keep denormalized for MVP. Normalization is a v0.1 concern.
+**Status:** APPROVED — Ready for Implementation  
+**Addresses:** Multi-agent architecture for variable participant counts (2-4 agents)
 
 ---
 
 ## Summary
 
-| Table | Action | Priority |
-|-------|--------|----------|
-| `bouts` | No change needed | — |
-| `messages` | No change needed (MVP) | — |
-| `waitlist` | No change needed | — |
-| `metrics` | No change needed | — |
-| `bout_agents` | **Add** | HIGH |
-| `votes` | **Add** | HIGH |
-| `bout_outcomes` | Add (optional) | LOW |
+Complete refactor from 1v1 comparison model to multi-agent arena. Variable agent counts (2-4) are load-bearing per the preset design.
 
-The existing schema is 80% correct for multi-agent. We're adding the missing 20%.
+**Free tier:** 2-bot presets only (Roast Battle, On The Couch, Gloves Off)  
+**Premium tier:** Unlocks 3-4 bot formats
+
+---
+
+## Final Schema
+
+### Enums
+
+```typescript
+boutStatusEnum = ['pending', 'running', 'voting', 'complete']
+turnTypeEnum   = ['alternating', 'broadcast', 'round_robin']
+voteTypeEnum   = ['winner', 'ranking', 'survival']
+userTierEnum   = ['free', 'premium']
+```
+
+### Tables
+
+#### `presets` — Format Definitions
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | varchar(50) PK | 'roast_battle', 'shark_pit', etc. |
+| name | varchar(100) | Display name |
+| description | text | |
+| agent_count | integer | 2, 3, or 4 |
+| turn_type | turn_type | alternating, broadcast, round_robin |
+| agent_roles | jsonb | Default slot configs |
+| free_tier_access | boolean | True for 2-bot presets |
+| display_order | integer | UI ordering |
+
+#### `bouts` — Core Bout Record
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| user_id | uuid FK | Nullable |
+| preset_id | varchar FK | Required |
+| share_id | varchar(12) | Unique, for public links |
+| status | bout_status | Lifecycle |
+| topic | text | The prompt/topic |
+| max_messages | integer | Default 20 |
+| current_round | integer | |
+| metadata | jsonb | |
+| created_at, updated_at, completed_at | timestamp | |
+
+#### `bout_agents` — Agent-Bout Junction
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| bout_id | uuid FK | |
+| agent_name | varchar(100) | "Comedian A", "Shark 1" |
+| agent_role | text | System prompt |
+| turn_order | integer | 0-indexed position |
+| is_initiator | boolean | Who speaks first |
+| model_provider | varchar(50) | Hidden until reveal |
+| model_id | varchar(100) | |
+| persona_config | jsonb | Per-bout overrides |
+
+Unique constraint: (bout_id, turn_order)
+
+#### `messages` — Agent Responses
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| bout_id | uuid FK | |
+| bout_agent_id | uuid FK | Which agent authored |
+| content | text | |
+| turn_number | integer | Global sequence |
+| round_number | integer | For round_robin tracking |
+| input_tokens, output_tokens | integer | Cost tracking |
+| duration_ms | integer | |
+| is_error | boolean | |
+| error_message | text | |
+
+#### `votes` — Multi-Agent Outcomes
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| bout_id | uuid FK | |
+| vote_type | vote_type | winner, ranking, survival |
+| winner_agent_id | uuid FK | For 'winner' type |
+| ranking | jsonb | Array of agent IDs |
+| survivors | jsonb | Array of agent IDs |
+| user_id | uuid FK | Authenticated voter |
+| ip_hash | varchar(64) | Anonymous tracking |
+| rationale | text | Optional |
+
+#### `users` — Updated
+
+Added: `tier` (user_tier, default 'free')
+
+---
+
+## Turn Type Mapping
+
+| Preset | Agents | Turn Type |
+|--------|--------|-----------|
+| Roast Battle | 2 | alternating |
+| On The Couch | 2 | alternating |
+| Gloves Off | 2 | alternating |
+| Darwin Special | 3 | round_robin |
+| First Contact | 3 | round_robin |
+| Writers Room | 3 | round_robin |
+| The Flatshare | 3 | round_robin |
+| Shark Pit | 4 | broadcast |
+| Last Supper | 4 | round_robin |
+| The Mansion | 4 | round_robin |
+| The Summit | 4 | round_robin |
+
+---
+
+## Migration Path
+
+### Phase 1: MVP
+
+1. Create new tables: presets, bout_agents, messages, votes
+2. Add tier to users
+3. Seed presets with 11 formats
+4. Engine populates bout_agents at bout creation
+5. Old bout_responses table deprecated (no data to migrate)
+
+### Phase 2: Post-MVP
+
+1. Add rolling summarization for context compression
+2. Add bout_outcomes table for cached vote aggregation
+3. Add shared agents table if persona reuse becomes a feature
+
+---
+
+## Implementation Files
+
+Schema TypeScript: `~/clawd-analyst/schema/*.ts`
+
+- `enums.ts` — All enum definitions
+- `users.ts` — User table with tier
+- `bouts.ts` — All bout-related tables (presets, bouts, bout_agents, messages, votes)
+- `index.ts` — Exports
+
+Ready for Architect to wire into pit repo.
+
+---
+
+## Cost Model Reference
+
+| Preset Type | Agents | Responses/Bout (4 rounds) | Est. Cost |
+|-------------|--------|---------------------------|-----------|
+| 2-bot | 2 | 8 | ~$0.01 |
+| 3-bot | 3 | 12 | ~$0.015 |
+| 4-bot | 4 | 16 | ~$0.02 |
+
+Context accumulation adds 30-50%. Free tier caps mitigate runaway costs.

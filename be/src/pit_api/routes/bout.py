@@ -45,7 +45,7 @@ def create_bout():
 
         # Create agents from preset
         agents = [
-            AgentConfig(name=a.name, role=a.role, system_prompt=a.system_prompt)
+            AgentConfig(id=a.id, name=a.name, role=a.role, system_prompt=a.system_prompt)
             for a in preset.agents
         ]
 
