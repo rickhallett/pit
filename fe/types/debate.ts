@@ -34,6 +34,8 @@ export type PresetCategory =
   | 'science'
   | 'politics';
 
+export type PresetComplexity = 'simple' | 'compound' | 'emergent';
+
 // ============================================================================
 // Agents
 // ============================================================================
@@ -83,6 +85,8 @@ export interface PresetConfig {
   premise?: string;
   /** Content category */
   category: PresetCategory;
+  /** Complexity tier for analytics */
+  complexity?: PresetComplexity;
   /** Show on homepage / featured section */
   featured: boolean;
   /** Launch day special treatment */
@@ -121,6 +125,7 @@ export interface PresetConfigRaw {
   description: string;
   premise?: string;
   category: string;
+  complexity?: string;
   agent_count?: number;
   featured?: boolean;
   launch_day_hero?: boolean;
@@ -171,8 +176,10 @@ export interface BoutConfig {
   maxTurns: number;
   /** Turn order strategy */
   turnOrder: TurnOrderStrategy;
-  /** Custom agents (if user modified the cast) */
+  /** Custom agents (if user replaced the cast entirely) */
   agents?: AgentConfig[];
+  /** Partial overrides for specific agents (tweak personas without replacing) */
+  castOverrides?: Array<{ id: AgentId } & Partial<Omit<AgentConfig, 'id'>>>;
 }
 
 /**
@@ -271,6 +278,7 @@ export function parsePreset(raw: PresetConfigRaw): PresetConfig {
     description: raw.description,
     premise: raw.premise,
     category: raw.category as PresetCategory,
+    complexity: raw.complexity as PresetComplexity | undefined,
     featured: raw.featured ?? false,
     launchDayHero: raw.launch_day_hero,
     agents: raw.agents.map(parseAgent),
