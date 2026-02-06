@@ -65,9 +65,9 @@ class PresetLoader:
         if presets_dir:
             self.presets_dir = presets_dir
         else:
-            # Default to config/presets relative to repo root
-            repo_root = Path(__file__).parents[4]  # be/src/pit_api/store → repo root
-            self.presets_dir = repo_root / "config" / "presets"
+            # Default to config/presets relative to be/ directory
+            be_root = Path(__file__).parents[3]  # be/src/pit_api/store → be/
+            self.presets_dir = be_root / "config" / "presets"
 
     def load_all(self) -> list[Preset]:
         """Load all available presets."""
@@ -97,11 +97,20 @@ class PresetLoader:
             with open(preset_file, encoding="utf-8") as f:
                 data = json.load(f)
 
+            # Skip files that contain arrays (batch files, not individual presets)
+            if isinstance(data, list):
+                logger.debug("Skipping batch file: %s", preset_file)
+                return None
+
             agents = []
             for agent_data in data.get("agents", []):
+                # Support both 'id' and 'agent_id' for backward compatibility
+                agent_id = agent_data.get("agent_id") or agent_data.get("id")
+                if not agent_id:
+                    raise KeyError("Agent missing 'id' or 'agent_id'")
                 agents.append(
                     PresetAgent(
-                        id=agent_data["agent_id"],
+                        id=agent_id,
                         name=agent_data["name"],
                         role=agent_data.get("role", agent_data["name"]),
                         system_prompt=agent_data.get("system_prompt", ""),
