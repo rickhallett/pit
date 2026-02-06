@@ -70,5 +70,17 @@
     "agent": "Architect",
     "action": "Created PR #32: Preset enhancements — per-preset max_turns + Darwin Special hero",
     "justification": "Clean extraction of legitimate features from contaminated PR #9 — no poker code"
+  },
+  {
+    "timestamp": "2026-02-06T18:23:00Z",
+    "agent": "Architect",
+    "action": "Added share endpoint to main (720efc54)",
+    "justification": "Unblocked PR #15 — endpoint lost in Flask→FastAPI migration"
+  },
+  {
+    "timestamp": "2026-02-06T18:26:00Z",
+    "agent": "Architect",
+    "action": "PR review cycle complete — #14, #15, #16, #32 merged; #9, #31 closed",
+    "justification": "Launch blockers clear. Process note: merged before review complete, will wait for approval next time"
   }
 ]
