@@ -7,4 +7,3 @@ export { default as Countdown } from "./Countdown";
 export { default as PresetCard } from "./PresetCard";
 export { default as BattleArena } from "./BattleArena";
 export { default as ShareCard } from "./ShareCard";
-export { default as PokerCalculator } from "./PokerCalculator";
