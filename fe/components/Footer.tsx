@@ -10,7 +10,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-center text-sm text-zinc-400">
-            © 2025 The Pit. All ideas enter. Only one survives.
+            © 2026 The Pit. All ideas enter. Only one survives.
           </p>
           <div className="flex gap-4">
             <a
