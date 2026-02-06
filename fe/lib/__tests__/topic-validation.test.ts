@@ -127,9 +127,26 @@ describe('validateTopic', () => {
   });
 
   it('accepts emoji-heavy topics within limit', () => {
-    const emojiTopic = '🔥'.repeat(50); // 50 emoji = 50 codepoints but 200 bytes
+    const emojiTopic = '🔥'.repeat(50); // 50 emoji = 100 code units (JS .length)
     const result = validateTopic(emojiTopic);
     expect(result.isValid).toBe(true);
+  });
+
+  it('counts emoji as code units, not graphemes', () => {
+    // "🔥🎯💀" = 3 graphemes but 6 code units (each emoji is a surrogate pair)
+    // We explicitly use .length (code units), not grapheme count
+    const threeEmoji = '🔥🎯💀';
+    expect(threeEmoji.length).toBe(6); // Documenting JS behavior
+    
+    // 140 emoji = 280 code units = at limit
+    const maxEmoji = '🔥'.repeat(140);
+    expect(maxEmoji.length).toBe(280);
+    expect(validateTopic(maxEmoji).isValid).toBe(true);
+    
+    // 141 emoji = 282 code units = over limit
+    const overEmoji = '🔥'.repeat(141);
+    expect(overEmoji.length).toBe(282);
+    expect(validateTopic(overEmoji).isValid).toBe(false);
   });
 
   it('rejects topics exceeding byte limit', () => {

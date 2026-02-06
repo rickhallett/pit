@@ -96,3 +96,4 @@
     "justification": "Feature: presets with requires_input:true now show topic input modal before bout creation. Validation: non-empty, ≤280 chars, ≤1024 bytes."
   }
 ]
+{"timestamp": "2026-02-06T18:58:00Z", "agent": "architect", "action": "legacy_assessment", "justification": "Identified db/ folder as obsolete TypeScript/Drizzle setup, Python be/ folder is the active backend. Prepared cleanup plan for docs and legacy code."}
