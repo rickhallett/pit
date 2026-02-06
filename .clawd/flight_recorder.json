@@ -16,5 +16,11 @@
     "agent": "Architect",
     "action": "Created PR #12: E2E smoke tests + preset loader fixes",
     "justification": "Sprint backlog item — tests + bug fixes discovered during test creation"
+  },
+  {
+    "timestamp": "2026-02-06T15:00:00Z",
+    "agent": "Architect",
+    "action": "Created PR #13: Deployment prep — Dockerfiles, compose, docs",
+    "justification": "Sprint backlog item — production deployment infrastructure"
   }
 ]
