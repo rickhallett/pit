@@ -34,7 +34,7 @@ export default function Home() {
       try {
         setLoading(true);
         const data = await getPresets();
-        setPresets(data);
+        setPresets(data.presets);
         setError(null);
       } catch (err) {
         console.error("Failed to load presets:", err);
@@ -48,20 +48,26 @@ export default function Home() {
           {
             id: "optimist",
             name: "The Optimist",
-            premise: "Progress Above All",
-            tone: "Believes in the power of innovation, risk-taking, and forward momentum. Change is opportunity.",
+            description: "Progress Above All",
+            category: "debate",
             agent_count: 1,
             featured: true,
-            user_input: false,
+            sort_order: 0,
+            requires_input: false,
+            premise: "Progress Above All",
+            tone: "Believes in the power of innovation, risk-taking, and forward momentum. Change is opportunity.",
           },
           {
             id: "skeptic",
             name: "The Skeptic",
-            premise: "Question Everything",
-            tone: "Champions critical thinking, evidence-based reasoning, and cautious evaluation before action.",
+            description: "Question Everything",
+            category: "debate",
             agent_count: 1,
             featured: true,
-            user_input: false,
+            sort_order: 1,
+            requires_input: false,
+            premise: "Question Everything",
+            tone: "Champions critical thinking, evidence-based reasoning, and cautious evaluation before action.",
           },
         ]);
       } finally {
@@ -151,8 +157,8 @@ export default function Home() {
                 <PresetCard
                   key={preset.id}
                   name={preset.name}
-                  description={preset.tone || preset.premise}
-                  stance={preset.premise}
+                  description={preset.tone || preset.premise || preset.description}
+                  stance={preset.premise || preset.description}
                   index={index}
                   selected={
                     selectedFighters.fighter1 === preset.id ||
