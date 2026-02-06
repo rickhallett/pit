@@ -410,10 +410,10 @@ List available presets.
 
 1. Agents speak in round-robin order (agent 0 → 1 → 2 → 3 → 0 → ...)
 2. Each agent sees full conversation history + their system prompt
-3. Turn count is configurable per model tier:
-   - Standard: 12 turns
-   - Juiced: 24 turns
-   - Unleashed: 48 turns
+3. Turn count follows cost parity (cheaper models = more turns):
+   - Standard (Haiku 4.5): 48 turns — most turns, lowest cost/turn
+   - Juiced (Sonnet 4.5): 24 turns — balanced
+   - Unleashed (Opus 4.5): 12 turns — fewest turns, highest quality
 4. If an agent API call fails, skip that turn and continue
 5. If 3 consecutive API failures, abort bout with 'error' status
 
@@ -531,8 +531,11 @@ List available presets.
 1. **Monorepo or separate repos?** (Affects project structure)
 2. **Postgres hosting?** (Supabase / Railway / self-hosted?)
 3. **Haiku version?** (3.5 assumed — no 4.5 exists)
-4. **Max turns per tier?** (Spec says 12/24/48 — confirm?)
-5. **Rate limit defaults?** (3 bouts per hour per IP?)
+4. **Max turns per tier?** ✅ CONFIRMED — inverted for cost parity:
+   - Unleashed (Opus): 12 turns
+   - Juiced (Sonnet): 24 turns  
+   - Standard (Haiku): 48 turns
+5. **Rate limit defaults?** ✅ CONFIRMED — 3 bouts/hour/IP
 
 ---
 

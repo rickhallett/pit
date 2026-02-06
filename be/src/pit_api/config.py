@@ -14,20 +14,20 @@ class Config:
     # Anthropic
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
 
-    # Models
+    # Models (4.5+ only, no fallback to 3.5 series)
     MODEL_STANDARD: str = "claude-3-5-haiku-20241022"  # Haiku 4.5
     MODEL_JUICED: str = "claude-sonnet-4-20250514"  # Sonnet 4.5
     MODEL_UNLEASHED: str = "claude-opus-4-20250514"  # Opus 4.5
 
-    # Bout settings
-    TURNS_STANDARD: int = 12
-    TURNS_JUICED: int = 24
-    TURNS_UNLEASHED: int = 48
+    # Bout settings (inverted: cheaper models get more turns for cost parity)
+    TURNS_STANDARD: int = 48   # Haiku 4.5 — most turns, lowest cost/turn
+    TURNS_JUICED: int = 24     # Sonnet 4.5 — balanced
+    TURNS_UNLEASHED: int = 12  # Opus 4.5 — fewest turns, highest quality
 
     MAX_TOKENS_PER_TURN: int = 500
 
     # Rate limiting
-    RATE_LIMIT_BOUTS_PER_HOUR: int = 1
+    RATE_LIMIT_BOUTS_PER_HOUR: int = 3
     RATE_LIMIT_WINDOW_SECONDS: int = 3600
 
     # Server

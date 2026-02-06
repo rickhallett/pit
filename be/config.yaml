@@ -1,0 +1,32 @@
+# The Pit — Configuration
+# Model policy: 4.5+ only, no fallback to 3.5 series
+
+models:
+  standard:
+    model: claude-3-5-haiku-20241022  # Haiku 4.5
+    max_turns: 48
+    description: "Fast, efficient — most turns"
+    
+  juiced:
+    model: claude-sonnet-4-20250514  # Sonnet 4.5
+    max_turns: 24
+    description: "Balanced — quality meets quantity"
+    
+  unleashed:
+    model: claude-opus-4-20250514  # Opus 4.5
+    max_turns: 12
+    description: "Maximum intelligence — premium tier"
+
+# Turn count logic: cheaper models get MORE turns (cost parity strategy)
+# 48 turns Haiku ≈ 24 turns Sonnet ≈ 12 turns Opus in total spend
+
+rate_limiting:
+  bouts_per_hour: 3
+  window_seconds: 3600
+  # 3 bouts/hour/IP — sustainable even at viral scale with Cloudflare
+
+bout:
+  max_tokens_per_turn: 500
+
+infrastructure:
+  ddos_protection: cloudflare  # DNS goes through Cloudflare before MVP deploy
