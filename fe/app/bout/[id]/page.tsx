@@ -87,6 +87,7 @@ export default function BoutPage() {
       // Fetch the complete message from the API
       // In a real implementation, you'd get the message content from the stream
       // For now, we'll refetch the bout to get updated messages
+      // CRITIC:DEBT — Refetching entire bout on each turn. Include content in SSE events instead.
       getBout(boutId).then((updatedBout) => {
         if (updatedBout.messages) {
           setStreamMessages(

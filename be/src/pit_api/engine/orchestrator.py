@@ -31,6 +31,7 @@ class OrchestratorEvents:
 
     on_turn_start: Callable[[str, str, int], None] | None = None  # bout_id, agent_name, turn
     # TODO: on_token is unused until streaming is implemented via AgentRunner.run_streaming()
+    # CRITIC:DEBT — Unused callback. Wire up when implementing token-by-token streaming.
     on_token: Callable[[str, str], None] | None = None  # bout_id, token
     on_turn_end: Callable[[str, str, int, str], None] | None = None  # bout_id, agent, turn, msg_id
     on_bout_complete: Callable[[str, float], None] | None = None  # bout_id, total_cost

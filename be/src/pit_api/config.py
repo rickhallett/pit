@@ -12,6 +12,7 @@ class Config:
     DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://pit:pit@localhost:5432/pit")
 
     # Anthropic
+    # CRITIC:SEC — Empty default could cause confusing errors. Consider startup validation.
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
 
     # Models (4.5+ only, no fallback to 3.5 series)
