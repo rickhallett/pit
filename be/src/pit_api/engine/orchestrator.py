@@ -66,6 +66,14 @@ class Orchestrator:
             "unleashed": config.TURNS_UNLEASHED,
         }.get(tier, config.TURNS_STANDARD)
 
+    def _get_cost_ceiling_for_tier(self, tier: str) -> float:
+        """Map tier name to cost ceiling in dollars."""
+        return {
+            "standard": config.COST_CEILING_STANDARD,
+            "juiced": config.COST_CEILING_JUICED,
+            "unleashed": config.COST_CEILING_UNLEASHED,
+        }.get(tier, config.COST_CEILING_STANDARD)
+
     def create(self, bout_config: BoutConfig) -> Bout:
         """Create a new bout in pending state with agent records."""
         bout = Bout(
@@ -137,10 +145,11 @@ class Orchestrator:
             # Initialize components (inside try so failures mark bout as error)
             model = self._get_model_for_tier(bout.model_tier)
             max_turns = self._get_turns_for_tier(bout.model_tier)
+            cost_ceiling = self._get_cost_ceiling_for_tier(bout.model_tier)
 
             runner = AgentRunner(model=model)
             turn_manager = TurnManager(agents)
-            meter = TokenMeter()
+            meter = TokenMeter(budget=cost_ceiling)
             for turn_num, agent in turn_manager.turns(max_turns):
                 # Emit turn start event
                 if self.events.on_turn_start:
@@ -179,8 +188,14 @@ class Orchestrator:
                     if self.events.on_turn_end:
                         self.events.on_turn_end(bout.id, agent.name, turn_num, message.id)
 
-                    # Check budget
+                    # Check budget — end gracefully if ceiling hit
                     if meter.is_over_budget():
+                        if self.events.on_error:
+                            self.events.on_error(
+                                bout.id,
+                                f"Cost ceiling reached (${cost_ceiling:.2f}). "
+                                f"Bout completed early at turn {turn_num}."
+                            )
                         break
 
                 except Exception as e:
