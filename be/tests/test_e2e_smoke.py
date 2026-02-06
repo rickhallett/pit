@@ -51,10 +51,13 @@ class MockAgentRunner:
     def __init__(self, model: str = "test-model"):
         self.model = model
         self.call_count = 0
+        self.conversation_history = []  # Track what conversations we receive
 
     def run(self, agent, conversation, max_tokens=500):
         """Return a mock response."""
         self.call_count += 1
+        # Record the conversation we received (copy to avoid mutation issues)
+        self.conversation_history.append(list(conversation))
         return RunResult(
             content=f"Mock response from {agent.name} (turn {self.call_count}): "
             f"I am {agent.role}. This is a test response.",
@@ -233,3 +236,13 @@ class TestBoutFlow:
 
                 # 5. Verify mock was called (agents ran)
                 assert mock_runner.call_count > 0
+
+                # 6. Verify conversation was seeded before first turn
+                # (Anthropic API requires at least one message)
+                assert len(mock_runner.conversation_history) > 0, "No calls recorded"
+                first_conversation = mock_runner.conversation_history[0]
+                assert len(first_conversation) >= 1, (
+                    f"First turn received empty conversation. "
+                    f"Anthropic requires at least one message. "
+                    f"Got: {first_conversation}"
+                )
