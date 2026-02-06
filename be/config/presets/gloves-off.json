@@ -2,7 +2,8 @@
   "preset_id": "gloves-off",
   "name": "Gloves Off",
   "description": "User-supplied topic. Four debaters with distinct styles.",
-  "requires_topic": true,
+  "requires_input": true,
+  "input_label": "Enter a topic for debate",
   "agents": [
     {
       "id": "absolutist",
