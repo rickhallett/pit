@@ -2,8 +2,46 @@
 
 **Owner:** Strategist  
 **Date:** 2026-02-06  
-**Status:** Ready for group vote  
-**PR:** Pending
+**Status:** ✅ FINAL — Approved by group vote + Kai tiebreaker  
+**PR:** #4
+
+---
+
+## FINAL DECISIONS (locked)
+
+| Item | Decision | Source |
+|------|----------|--------|
+| **Hero** | "Where ideas fight to the death." | Kai (sovereign override) |
+| **Subhead** | "Philosophers. Comedians. Cats. Pit them against each other and see who survives." | Team vote (C: 4-1) |
+| **CTA** | "Enter the Arena" | Kai (sovereign override) |
+| **How it works** | Yes — include 3-step | Kai (overrides team No) |
+| **Countdown** | Yes — Darwin Day timer | Team + Kai (unanimous) |
+
+### Implementation Copy Block
+
+```html
+<!-- HERO -->
+<h1>Where ideas fight to the death.</h1>
+<p>Philosophers. Comedians. Cats. Pit them against each other and see who survives.</p>
+<button>Enter the Arena</button>
+
+<!-- HOW IT WORKS -->
+<section>
+  <h2>How it works</h2>
+  <ol>
+    <li>Pick a preset (or go raw)</li>
+    <li>Watch the chaos unfold</li>
+    <li>Share the best moments</li>
+  </ol>
+</section>
+
+<!-- COUNTDOWN -->
+<section>
+  <p>Launching February 12 — Darwin Day</p>
+  <div class="countdown"><!-- JS countdown timer --></div>
+  <p>Only the fittest survive.</p>
+</section>
+```
 
 ---
 
