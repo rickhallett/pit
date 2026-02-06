@@ -1,20 +1,20 @@
+import type { Preset } from '@/lib/types/preset';
+
 interface PresetCardProps {
-  name: string;
-  description: string;
-  stance: string;
+  preset: Preset;
   index: number;
   selected?: boolean;
   onClick?: () => void;
 }
 
 export default function PresetCard({
-  name,
-  description,
-  stance,
+  preset,
   index,
   selected = false,
   onClick,
 }: PresetCardProps) {
+  const { name, description, category, agent_count, agents } = preset;
+  
   // Alternate styling based on index for asymmetry
   const isEven = index % 2 === 0;
   const isFirst = index === 0;
@@ -66,12 +66,33 @@ export default function PresetCard({
             isEven ? "text-accent" : "text-accent-secondary"
           }`}
         >
-          {stance}
+          {category}
         </p>
 
-        <p className="max-w-md text-base leading-relaxed text-zinc-400">
+        <p className="max-w-md text-base leading-relaxed text-zinc-400 mb-4">
           {description}
         </p>
+
+        {/* Agent avatars */}
+        <div className={`flex gap-2 ${isEven ? "" : "md:justify-end"}`}>
+          {agents.map((agent) => (
+            <div
+              key={agent.agent_id}
+              className="flex items-center justify-center w-10 h-10 rounded-full text-xl"
+              style={{ backgroundColor: agent.color + '20' }}
+              title={agent.name}
+            >
+              {agent.avatar}
+            </div>
+          ))}
+        </div>
+
+        {/* Agent count badge */}
+        <div className={`mt-4 flex items-center gap-2 ${isEven ? "" : "md:justify-end"}`}>
+          <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+            {agent_count} agents
+          </span>
+        </div>
 
         {/* Selection indicator */}
         {selected && (
