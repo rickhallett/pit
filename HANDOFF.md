@@ -1,43 +1,50 @@
 # HANDOFF.md — The Sticky Note
 
 **From:** Architect 📐
-**Date:** 2026-02-06T16:05:00Z
-**Status:** Active development — launch blockers in progress
+**Date:** 2026-02-06T17:03:00Z
+**Status:** Darwin Day ready — codebase clean and hardened
 
 ---
 
 ## What Just Happened
 
-Addressed Kai's audit findings. Created parallel PRs for launch blockers:
+**Session complete.** 9 PRs merged, adversarial audit passed.
 
-**Merged:**
-- PR #11: Cost ceiling ✅
-- PR #12: E2E smoke tests ✅
-- PR #13: Deployment prep ✅
+- PR #20: Flask → FastAPI migration (concurrency ceiling removed)
+- PR #21: Critic adversarial audit (tech debt tagged in-situ)
+- PR #22: SEC fix — fail fast on missing ANTHROPIC_API_KEY
 
-**Pending Review:**
-- PR #14: Share URL alias `/b/[id]`
-- PR #15: Frontend share UI (button + modal)
-- PR #16: Frontend waitlist form + metrics
+## Current State
+
+| Item | Status |
+|------|--------|
+| Tests | 14/14 passing |
+| Concurrency | Unlimited (was 4) |
+| Adversarial audit | Complete, no blockers |
+| Security | API key validation added |
+| Tech debt | Tagged in code (CRITIC:DEBT) |
 
 ## What's Next
 
-After PRs #14-16 merge, remaining gaps:
+1. Frontend SSE consumption verification
+2. Mobile QA
+3. Deploy pipeline
+4. Pre-launch dry run (all 11 presets)
 
-| Gap | Priority | Status |
-|-----|----------|--------|
-| Token-by-token streaming | SCOPE CUT | Post-turn streaming works |
-| Topic input for Gloves Off | LOW | Backend supports it |
-| Turso config | MEDIUM | Can test with Postgres |
+## Tech Debt (logged, not blocking)
+
+- `orchestrator.py`: on_token callback unused
+- `bout.py`: Sync orchestrator blocks event loop (documented TODO)
+- `page.tsx`: Refetches bout on each turn
 
 ## Blockers
 
-None. Working through launch blocker punch list.
+None. Ready for Darwin Day.
 
 ## Warnings
 
-⚠️ **The `feat/frontend-components` branch contains hallucinated poker code.**
-Do not merge. Do not reference.
+⚠️ **PR #9 (`feat/frontend-components`) contained hallucinated poker code.**
+Closed. Do not resurrect.
 
 ---
 

@@ -46,5 +46,23 @@
     "agent": "Architect",
     "action": "Created PR #16: Frontend waitlist form + metrics",
     "justification": "Launch blocker — users had no way to join waitlist + missing metrics logging"
+  },
+  {
+    "timestamp": "2026-02-06T16:55:00Z",
+    "agent": "Architect",
+    "action": "Created PR #20: FastAPI async migration",
+    "justification": "Remove 4-concurrent-user ceiling — Flask sync model replaced with FastAPI async, uvicorn, and StreamingResponse for SSE"
+  },
+  {
+    "timestamp": "2026-02-06T17:02:00Z",
+    "agent": "Architect",
+    "action": "Created PR #22: Fail fast on missing ANTHROPIC_API_KEY",
+    "justification": "CRITIC:SEC fix from audit PR #21 — prevent mysterious runtime errors from missing API key"
+  },
+  {
+    "timestamp": "2026-02-06T17:03:00Z",
+    "agent": "Architect",
+    "action": "Session complete — 9 PRs merged, codebase hardened",
+    "justification": "Darwin Day prep complete — FastAPI migration, adversarial audit, SEC fix all shipped"
   }
 ]
