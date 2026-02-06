@@ -27,6 +27,12 @@ class Config:
 
     MAX_TOKENS_PER_TURN: int = 500
 
+    # Cost ceiling per bout (in dollars) — prevents runaway costs
+    # Set to None for unlimited (not recommended in production)
+    COST_CEILING_STANDARD: float = 0.50  # Haiku — generous buffer
+    COST_CEILING_JUICED: float = 0.75  # Sonnet — moderate buffer
+    COST_CEILING_UNLEASHED: float = 1.00  # Opus — premium tier
+
     # Rate limiting
     RATE_LIMIT_BOUTS_PER_HOUR: int = 3
     RATE_LIMIT_WINDOW_SECONDS: int = 3600
