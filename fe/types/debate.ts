@@ -178,7 +178,10 @@ export interface BoutConfig {
   turnOrder: TurnOrderStrategy;
   /** Custom agents (if user replaced the cast entirely) */
   agents?: AgentConfig[];
-  /** Partial overrides for specific agents (tweak personas without replacing) */
+  /** 
+   * Partial overrides for specific agents (tweak personas without replacing)
+   * @internal — Not exposed in public API until core loop validated
+   */
   castOverrides?: Array<{ id: AgentId } & Partial<Omit<AgentConfig, 'id'>>>;
 }
 
