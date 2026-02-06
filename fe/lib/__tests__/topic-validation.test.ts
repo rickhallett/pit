@@ -149,12 +149,17 @@ describe('validateTopic', () => {
     expect(validateTopic(overEmoji).isValid).toBe(false);
   });
 
-  it('rejects topics exceeding byte limit', () => {
-    // Create a string that's under 280 codepoints but over 1024 bytes
-    // Each emoji is 4 bytes, so 280 emoji = 1120 bytes > 1024
-    const emojiTopic = '🔥'.repeat(280);
-    const result = validateTopic(emojiTopic);
-    expect(result.isValid).toBe(false);
-    expect(result.error).toContain('fewer emoji');
+  it('byte limit is unreachable with current codepoint limit', () => {
+    // NOTE: The byte limit (1024) cannot be exceeded while staying under
+    // the codepoint limit (280 code units) because:
+    // - Max bytes per code unit is 3 (BMP chars) or 2 (emoji = 4 bytes / 2 units)
+    // - 280 code units × 3 bytes max = 840 bytes < 1024
+    //
+    // The byte limit is a backstop for future changes to the codepoint limit.
+    // This test documents that it's currently unreachable.
+    const maxEmoji = '🔥'.repeat(140); // 280 code units, 560 bytes
+    expect(maxEmoji.length).toBe(280); // At code unit limit
+    expect(new TextEncoder().encode(maxEmoji).length).toBe(560); // Under byte limit
+    expect(validateTopic(maxEmoji).isValid).toBe(true);
   });
 });
