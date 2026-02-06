@@ -9,10 +9,11 @@ WORKDIR /app
 # Install build dependencies
 RUN pip install --no-cache-dir pip-tools
 
-# Copy dependency files
+# Copy dependency files and source
 COPY pyproject.toml ./
+COPY src/ ./src/
 
-# Generate requirements and install
+# Install the package
 RUN pip install --no-cache-dir .
 
 # Stage 2: Runtime
