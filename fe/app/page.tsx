@@ -152,21 +152,73 @@ export default function Home() {
             </div>
           )}
 
+          {/* Darwin Special Hero Callout */}
+          {!loading && presets.find(p => p.launch_day_hero) && (
+            <div className="mb-12">
+              {(() => {
+                const heroPreset = presets.find(p => p.launch_day_hero)!;
+                return (
+                  <div className="relative overflow-hidden border-4 border-yellow-500 bg-gradient-to-br from-yellow-900/20 to-black p-8">
+                    <div className="absolute -right-8 -top-8 text-[120px] opacity-10">🦴</div>
+                    <div className="relative z-10">
+                      <div className="mb-2 flex items-center gap-3">
+                        <span className="bg-yellow-500 px-3 py-1 text-xs font-black uppercase tracking-wider text-black">
+                          Darwin Day Special
+                        </span>
+                        <span className="text-yellow-500 text-sm font-bold">
+                          February 12, 2026
+                        </span>
+                      </div>
+                      <h3 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl">
+                        {heroPreset.name}
+                      </h3>
+                      <p className="mt-2 text-lg text-zinc-400">
+                        {heroPreset.description}
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {heroPreset.agents?.map((agent) => (
+                          <span
+                            key={agent.name}
+                            className="flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-800/50 px-3 py-1 text-sm text-zinc-300"
+                          >
+                            <span>{agent.avatar}</span>
+                            <span>{agent.name}</span>
+                          </span>
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => handleStartBout(heroPreset.id)}
+                        disabled={creatingBout}
+                        className="mt-6 border-4 border-yellow-500 bg-yellow-500 px-8 py-3 text-lg font-black uppercase tracking-tight text-black transition-colors hover:bg-yellow-400 disabled:opacity-50"
+                      >
+                        {creatingBout && selectedPreset === heroPreset.id
+                          ? "Starting..."
+                          : "⚡ Launch This Battle"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
           {/* Presets grid */}
           {!loading && (
             <div className="space-y-0 divide-y divide-white/10">
-              {presets.map((preset, index) => (
-                <PresetCard
-                  key={preset.id}
-                  name={preset.name}
-                  description={preset.tone || preset.premise || preset.description}
-                  stance={preset.premise || preset.description}
-                  index={index}
-                  selected={selectedPreset === preset.id}
-                  onClick={() => handleStartBout(preset.id)}
-                  disabled={creatingBout}
-                />
-              ))}
+              {presets
+                .filter(p => !p.launch_day_hero)
+                .map((preset, index) => (
+                  <PresetCard
+                    key={preset.id}
+                    name={preset.name}
+                    description={preset.tone || preset.premise || preset.description}
+                    stance={preset.premise || preset.description}
+                    index={index}
+                    selected={selectedPreset === preset.id}
+                    onClick={() => handleStartBout(preset.id)}
+                    disabled={creatingBout}
+                  />
+                ))}
             </div>
           )}
 

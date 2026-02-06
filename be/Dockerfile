@@ -49,5 +49,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')" || exit 1
 
-# Run with gunicorn in production
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--threads", "4", "pit_api.app:create_app()"]
+# Run with uvicorn in production
+CMD ["uvicorn", "pit_api.app:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "2"]

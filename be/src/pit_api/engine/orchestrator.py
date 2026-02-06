@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from pit_api.config import config
 from pit_api.models import Bout, BoutAgent, Message
+from pit_api.store import preset_loader
 
 from .agent_runner import AgentConfig, AgentRunner
 from .token_meter import TokenMeter
@@ -59,8 +60,21 @@ class Orchestrator:
             "unleashed": config.MODEL_UNLEASHED,
         }.get(tier, config.MODEL_STANDARD)
 
-    def _get_turns_for_tier(self, tier: str) -> int:
-        """Map tier name to turn count."""
+    def _get_turns_for_tier(self, tier: str, preset_max_turns: dict | None = None) -> int:
+        """Map tier name to turn count.
+        
+        Args:
+            tier: Model tier (standard, juiced, unleashed)
+            preset_max_turns: Optional per-preset turn overrides
+            
+        Returns:
+            Turn count for the tier, preferring preset override if available
+        """
+        # If preset has specific max_turns for this tier, use it
+        if preset_max_turns and tier in preset_max_turns:
+            return preset_max_turns[tier]
+        
+        # Fall back to global config
         return {
             "standard": config.TURNS_STANDARD,
             "juiced": config.TURNS_JUICED,
@@ -145,8 +159,16 @@ class Orchestrator:
         try:
             # Initialize components (inside try so failures mark bout as error)
             model = self._get_model_for_tier(bout.model_tier)
-            max_turns = self._get_turns_for_tier(bout.model_tier)
             cost_ceiling = self._get_cost_ceiling_for_tier(bout.model_tier)
+            
+            # Load preset's max_turns if available
+            preset_max_turns = None
+            if bout.preset_id:
+                preset = preset_loader.load_one(bout.preset_id)
+                if preset and preset.max_turns:
+                    preset_max_turns = preset.max_turns
+            
+            max_turns = self._get_turns_for_tier(bout.model_tier, preset_max_turns)
 
             runner = AgentRunner(model=model)
             turn_manager = TurnManager(agents)

@@ -23,6 +23,8 @@ async def list_presets():
                 "sort_order": p.sort_order,
                 "requires_input": p.requires_input,
                 "input_label": p.input_label,
+                "launch_day_hero": p.launch_day_hero,
+                "max_turns": p.max_turns,
                 "agents": [{"name": a.name, "avatar": a.avatar} for a in p.agents],
                 # Legacy fields for compatibility
                 "premise": p.premise,
