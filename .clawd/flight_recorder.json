@@ -4,5 +4,11 @@
     "agent": "HAL",
     "action": "Created MANIFEST.md, HANDOFF.md, flight_recorder.json",
     "justification": "Operation MEMENTO — implementing grounding protocols after the Poker Incident"
+  },
+  {
+    "timestamp": "2026-02-06T14:40:00Z",
+    "agent": "Architect",
+    "action": "Created PR #11: Cost ceiling implementation",
+    "justification": "Sprint backlog item — wire up per-tier cost ceilings to prevent runaway API costs"
   }
 ]
