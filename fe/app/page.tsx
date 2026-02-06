@@ -16,13 +16,7 @@ import { getPresets, createBout, Preset, ApiError } from "@/lib/api";
 
 export default function Home() {
   const router = useRouter();
-  const [selectedFighters, setSelectedFighters] = useState<{
-    fighter1: string | null;
-    fighter2: string | null;
-  }>({
-    fighter1: null,
-    fighter2: null,
-  });
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
 
   const [presets, setPresets] = useState<Preset[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,28 +41,28 @@ export default function Home() {
         // Fallback to mock data if API fails
         setPresets([
           {
-            id: "optimist",
-            name: "The Optimist",
-            description: "Progress Above All",
-            category: "debate",
-            agent_count: 1,
+            id: "first-contact",
+            name: "First Contact",
+            description: "Earth diplomat meets alien who learned English from reality TV.",
+            category: "comedy",
+            agent_count: 2,
             featured: true,
             sort_order: 0,
             requires_input: false,
-            premise: "Progress Above All",
-            tone: "Believes in the power of innovation, risk-taking, and forward momentum. Change is opportunity.",
+            premise: "Comedy duo. Earth diplomat meets alien who learned English from reality TV.",
+            tone: "Comedy",
           },
           {
-            id: "skeptic",
-            name: "The Skeptic",
-            description: "Question Everything",
-            category: "debate",
-            agent_count: 1,
+            id: "roast-battle",
+            name: "Roast Battle",
+            description: "Two comedians trade insults until one cracks.",
+            category: "comedy",
+            agent_count: 2,
             featured: true,
             sort_order: 1,
             requires_input: false,
-            premise: "Question Everything",
-            tone: "Champions critical thinking, evidence-based reasoning, and cautious evaluation before action.",
+            premise: "Two comedians trade insults until one cracks.",
+            tone: "Comedy roast",
           },
         ]);
       } finally {
@@ -79,19 +73,13 @@ export default function Home() {
     loadPresets();
   }, []);
 
-  // Handle bout creation when both fighters are selected
-  const handleStartBout = async () => {
-    if (!selectedFighters.fighter1 || !selectedFighters.fighter2) {
-      return;
-    }
-
+  // Handle bout creation when a preset is selected
+  const handleStartBout = async (presetId: string) => {
     try {
       setCreatingBout(true);
+      setSelectedPreset(presetId);
       
-      // For now, we'll use the first selected fighter's preset
-      // In a real implementation, you might want to create a custom preset
-      // that includes both fighters as agents
-      const response = await createBout(selectedFighters.fighter1);
+      const response = await createBout(presetId);
       
       console.log("Bout created:", response);
       
@@ -100,11 +88,11 @@ export default function Home() {
       
     } catch (err) {
       console.error("Failed to create bout:", err);
-      alert(
-        err instanceof ApiError
-          ? `Error: ${err.message}`
-          : "Failed to create bout"
-      );
+      const errorMessage = err instanceof ApiError
+        ? err.message
+        : "Failed to create bout";
+      setError(errorMessage);
+      setSelectedPreset(null);
     } finally {
       setCreatingBout(false);
     }
@@ -129,7 +117,7 @@ export default function Home() {
       <Countdown />
       <HowItWorks />
 
-      {/* Fighter Selection */}
+      {/* Preset Selection */}
       <section id="fighters" className="border-b-4 border-white bg-black py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-16 flex items-end justify-between">
@@ -137,15 +125,15 @@ export default function Home() {
               <h2 className="text-4xl font-black uppercase tracking-tighter text-white sm:text-5xl md:text-6xl">
                 Choose Your
                 <br />
-                Fighters
+                Battle
               </h2>
             </div>
             <div className="hidden text-right md:block">
               <p className="text-sm font-bold uppercase tracking-widest text-zinc-500">
-                Select two
+                Pick a scenario
               </p>
               <p className="text-sm font-bold uppercase tracking-widest text-zinc-500">
-                to battle
+                Watch the chaos
               </p>
             </div>
           </div>
@@ -160,7 +148,7 @@ export default function Home() {
           {/* Loading state */}
           {loading && (
             <div className="flex items-center justify-center py-12">
-              <p className="text-lg text-zinc-400">Loading fighters...</p>
+              <p className="text-lg text-zinc-400">Loading scenarios...</p>
             </div>
           )}
 
@@ -174,44 +162,20 @@ export default function Home() {
                   description={preset.tone || preset.premise || preset.description}
                   stance={preset.premise || preset.description}
                   index={index}
-                  selected={
-                    selectedFighters.fighter1 === preset.id ||
-                    selectedFighters.fighter2 === preset.id
-                  }
-                  onClick={() => {
-                    if (!selectedFighters.fighter1) {
-                      setSelectedFighters({
-                        ...selectedFighters,
-                        fighter1: preset.id,
-                      });
-                    } else if (
-                      !selectedFighters.fighter2 &&
-                      selectedFighters.fighter1 !== preset.id
-                    ) {
-                      setSelectedFighters({
-                        ...selectedFighters,
-                        fighter2: preset.id,
-                      });
-                    } else {
-                      // Reset selection
-                      setSelectedFighters({ fighter1: null, fighter2: null });
-                    }
-                  }}
+                  selected={selectedPreset === preset.id}
+                  onClick={() => handleStartBout(preset.id)}
+                  disabled={creatingBout}
                 />
               ))}
             </div>
           )}
 
-          {/* Start Bout Button */}
-          {selectedFighters.fighter1 && selectedFighters.fighter2 && (
+          {/* Loading indicator when creating bout */}
+          {creatingBout && (
             <div className="mt-12 flex justify-center">
-              <button
-                onClick={handleStartBout}
-                disabled={creatingBout}
-                className="rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 text-lg font-black uppercase tracking-wider text-white transition-all hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {creatingBout ? "Starting Bout..." : "Start the Battle"}
-              </button>
+              <p className="text-lg font-bold uppercase tracking-wider text-accent animate-pulse">
+                Starting battle...
+              </p>
             </div>
           )}
         </div>

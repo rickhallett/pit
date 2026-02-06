@@ -46,8 +46,8 @@ class Config:
     COST_CEILING_JUICED: float = 0.75  # Sonnet — moderate buffer
     COST_CEILING_UNLEASHED: float = 1.00  # Opus — premium tier
 
-    # Rate limiting
-    RATE_LIMIT_BOUTS_PER_HOUR: int = 3
+    # Rate limiting (higher for dev, lower for production)
+    RATE_LIMIT_BOUTS_PER_HOUR: int = int(os.getenv("RATE_LIMIT_BOUTS_PER_HOUR", "20"))
     RATE_LIMIT_WINDOW_SECONDS: int = 3600
 
     # Server

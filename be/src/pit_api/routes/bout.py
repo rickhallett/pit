@@ -35,13 +35,14 @@ async def create_bout(request: Request, body: CreateBoutRequest):
     if not preset:
         raise HTTPException(status_code=400, detail=f"Unknown preset: {preset_id}")
 
-    # Rate limiting
+    # Rate limiting (bypass for localhost/dev)
     client_ip = request.client.host if request.client else "unknown"
+    is_localhost = client_ip in ("127.0.0.1", "::1", "localhost")
     ip_hash = hash_ip(client_ip)
     db = SessionLocal()
 
     try:
-        if not check_rate_limit(db, ip_hash):
+        if not is_localhost and not check_rate_limit(db, ip_hash):
             Metric.log(db, "rate_limit_hit", ip_hash=ip_hash)
             raise HTTPException(
                 status_code=429,
