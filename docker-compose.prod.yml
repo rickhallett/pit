@@ -1,0 +1,81 @@
+# The Pit — Production Docker Compose
+# Use with: docker compose -f docker-compose.prod.yml up -d
+
+version: "3.8"
+
+services:
+  # Backend API
+  api:
+    build:
+      context: ./be
+      dockerfile: Dockerfile
+    container_name: pit-api
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - HOST=0.0.0.0
+      - PORT=5000
+      - DEBUG=false
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend
+  frontend:
+    build:
+      context: ./fe
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:5000}
+    container_name: pit-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL (optional — use Turso in production)
+  postgres:
+    image: postgres:16-alpine
+    container_name: pit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pit}
+      POSTGRES_DB: ${POSTGRES_DB:-pit}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pit-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pit}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - postgres  # Only start if explicitly requested
+
+volumes:
+  pit-postgres-data:
+
+# Usage:
+# 
+# Development with local PostgreSQL:
+#   docker compose -f docker-compose.prod.yml --profile postgres up -d
+#
+# Production with Turso/external DB:
+#   docker compose -f docker-compose.prod.yml up -d
