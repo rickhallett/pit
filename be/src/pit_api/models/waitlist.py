@@ -1,6 +1,6 @@
 """Waitlist model — email signups."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from nanoid import generate
 from sqlalchemy import Column, DateTime, String
@@ -21,7 +21,9 @@ class Waitlist(Base):
     id = Column(String(8), primary_key=True, default=generate_waitlist_id)
     email = Column(String(320), nullable=False, unique=True)  # RFC 5321 max length
     source = Column(String(50), nullable=True)  # landing, post-bout, share-link
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     ip_hash = Column(String(64), nullable=True)
 
     def to_dict(self) -> dict:

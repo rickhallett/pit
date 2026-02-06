@@ -1,7 +1,7 @@
 """Utility functions."""
 
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
 
@@ -26,7 +26,7 @@ def check_rate_limit(db: Session, ip_hash: str | None) -> bool:
 
     from pit_api.models import Bout
 
-    window_start = datetime.utcnow() - timedelta(seconds=config.RATE_LIMIT_WINDOW_SECONDS)
+    window_start = datetime.now(timezone.utc) - timedelta(seconds=config.RATE_LIMIT_WINDOW_SECONDS)
 
     recent_bouts = (
         db.query(Bout)

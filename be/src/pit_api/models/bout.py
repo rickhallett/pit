@@ -1,6 +1,6 @@
 """Bout model — represents a single AI battle."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from nanoid import generate
 from sqlalchemy import Column, DateTime, Float, Integer, String, Text
@@ -31,7 +31,9 @@ class Bout(Base):
     agent_count = Column(Integer, nullable=False, default=4)
     total_turns = Column(Integer, nullable=False, default=0)
     token_cost = Column(Float, nullable=False, default=0.0)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     completed_at = Column(DateTime, nullable=True)
     ip_hash = Column(String(64), nullable=True)  # SHA-256 of IP for rate limiting
     extra = Column(JSONB, nullable=True)  # flexible JSON blob

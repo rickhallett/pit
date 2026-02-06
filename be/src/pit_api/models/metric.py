@@ -1,6 +1,6 @@
 """Metric model — event logging for analytics."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from nanoid import generate
 from sqlalchemy import Column, DateTime, String
@@ -23,7 +23,12 @@ class Metric(Base):
     event = Column(String(50), nullable=False, index=True)  # bout_start, share_click, etc
     bout_id = Column(String(10), nullable=True, index=True)
     payload = Column(JSONB, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
+    created_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        index=True,
+    )
     ip_hash = Column(String(64), nullable=True)
 
     @classmethod

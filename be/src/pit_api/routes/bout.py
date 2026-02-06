@@ -114,10 +114,10 @@ def stream_bout(bout_id: str):
     - bout_complete: {bout_id, total_cost}
     - error: {code, message}
     """
-    db = SessionLocal()
-
+    # Pre-validation with a separate session (closed before generator)
+    db_check = SessionLocal()
     try:
-        bout = db.query(Bout).filter(Bout.id == bout_id).first()
+        bout = db_check.query(Bout).filter(Bout.id == bout_id).first()
         if not bout:
             return jsonify({"error": "Bout not found"}), 404
 
@@ -126,23 +126,40 @@ def stream_bout(bout_id: str):
                 {"error": "Bout already started or completed", "status": bout.status}
             ), 400
 
-        # Load preset
-        preset = preset_loader.load_one(bout.preset_id)
-        if not preset:
-            return jsonify({"error": "Preset not found"}), 500
+        bout_id_validated = bout.id
+        preset_id = bout.preset_id
+        topic = bout.topic
+    finally:
+        db_check.close()
 
-        agents = [
-            AgentConfig(name=a.name, role=a.role, system_prompt=a.system_prompt)
-            for a in preset.agents
-        ]
+    # Load preset (no DB needed)
+    preset = preset_loader.load_one(preset_id)
+    if not preset:
+        return jsonify({"error": "Preset not found"}), 500
 
-        # Inject topic if present
-        if bout.topic:
-            for agent in agents:
-                agent.system_prompt = agent.system_prompt.replace("{topic}", bout.topic)
+    agents = [
+        AgentConfig(name=a.name, role=a.role, system_prompt=a.system_prompt) for a in preset.agents
+    ]
 
-        def generate():
-            """SSE generator for streaming bout events."""
+    # Inject topic if present
+    if topic:
+        for agent in agents:
+            agent.system_prompt = agent.system_prompt.replace("{topic}", topic)
+
+    def generate():
+        """SSE generator for streaming bout events.
+
+        DB session is created and managed inside the generator to ensure
+        it stays open for the duration of the streaming response.
+        """
+        db = SessionLocal()
+        try:
+            # Re-fetch bout in generator's session
+            bout = db.query(Bout).filter(Bout.id == bout_id_validated).first()
+            if not bout:
+                yield f"event: error\ndata: {json.dumps({'code': 'NOT_FOUND', 'message': 'Bout not found'})}\n\n"
+                return
+
             events_queue = []
 
             def on_turn_start(bid, name, turn):
@@ -179,18 +196,17 @@ def stream_bout(bout_id: str):
             # Yield all events
             for event_type, data in events_queue:
                 yield f"event: {event_type}\ndata: {json.dumps(data)}\n\n"
+        finally:
+            db.close()
 
-        return Response(
-            generate(),
-            mimetype="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-            },
-        )
-
-    finally:
-        db.close()
+    return Response(
+        generate(),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        },
+    )
 
 
 @bout_bp.route("/bout/<bout_id>/share", methods=["GET"])

@@ -1,7 +1,7 @@
 """AgentRunner — wraps Anthropic API for model-agnostic agent execution."""
 
 from dataclasses import dataclass
-from typing import AsyncIterator
+from typing import Iterator
 
 import anthropic
 
@@ -76,16 +76,18 @@ class AgentRunner:
             latency_ms=latency_ms,
         )
 
-    async def run_streaming(
+    def run_streaming(
         self,
         agent: AgentConfig,
         conversation: list[dict],
         max_tokens: int = 500,
-    ) -> AsyncIterator[str]:
+    ) -> Iterator[str]:
         """
         Run a single turn with streaming output.
 
         Yields tokens as they arrive for real-time display.
+        Note: This uses the synchronous Anthropic client. For async streaming,
+        use AsyncAnthropic client instead.
         """
         with self.client.messages.stream(
             model=self.model,

@@ -1,7 +1,7 @@
 """Orchestrator — bout lifecycle management."""
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Callable
 
 from sqlalchemy.orm import Session
@@ -165,7 +165,7 @@ class Orchestrator:
 
             bout.total_turns = turn_manager.turn_number
             bout.token_cost = meter.total_cost
-            bout.completed_at = datetime.utcnow()
+            bout.completed_at = datetime.now(timezone.utc)
             self.db.commit()
 
             # Emit completion event
@@ -174,7 +174,7 @@ class Orchestrator:
 
         except Exception as e:
             bout.status = "error"
-            bout.completed_at = datetime.utcnow()
+            bout.completed_at = datetime.now(timezone.utc)
             self.db.commit()
             if self.events.on_error:
                 self.events.on_error(bout.id, str(e))

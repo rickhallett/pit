@@ -23,7 +23,11 @@ echo "→ Type check (basic Python validation)..."
 PYTHONPATH=src uv run python -c "import pit_api; print(f'  pit_api v{pit_api.__version__} OK')"
 
 echo "→ Tests (pytest)..."
-PYTHONPATH=src uv run pytest tests/ -v --tb=short || echo "  (No tests yet — placeholder)"
+if compgen -G "tests/test_*.py" > /dev/null; then
+    PYTHONPATH=src uv run pytest tests/ -v --tb=short
+else
+    echo "  (No test files found — skipping)"
+fi
 
 echo ""
 echo "✅ Backend checks passed"

@@ -1,6 +1,6 @@
 """Message model — individual turns in a bout."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from nanoid import generate
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
@@ -27,7 +27,9 @@ class Message(Base):
     tokens_in = Column(Integer, nullable=False, default=0)
     tokens_out = Column(Integer, nullable=False, default=0)
     model_used = Column(String(50), nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     latency_ms = Column(Integer, nullable=True)  # time-to-first-token
 
     def to_dict(self) -> dict:
