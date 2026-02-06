@@ -4,19 +4,36 @@
 
 // Types for API responses
 export interface PresetAgent {
+  id?: string;
   name: string;
-  role: string;
+  role?: string;
+  avatar?: string;
+  color?: string;
 }
 
 export interface Preset {
   id: string;
   name: string;
-  premise: string;
-  tone: string;
+  description: string;
+  category: string;
   agent_count: number;
   featured: boolean;
-  user_input: boolean;
-  agents?: PresetAgent[]; // Full preset detail includes agents
+  sort_order: number;
+  requires_input: boolean;
+  input_label?: string;
+  turn_pattern?: string;
+  max_turns?: { standard: number; juiced: number; unleashed: number };
+  launch_day_hero?: boolean;
+  agents?: PresetAgent[];
+  // Legacy compatibility
+  premise?: string;
+  tone?: string;
+  user_input?: boolean;
+}
+
+export interface PresetsResponse {
+  presets: Preset[];
+  categories: string[];
 }
 
 export interface BoutResponse {
@@ -113,9 +130,24 @@ async function apiFetch<T>(
 /**
  * Fetch all available presets
  */
-export async function getPresets(): Promise<Preset[]> {
-  const response = await apiFetch<{ presets: Preset[] }>('/api/presets');
-  return response.presets;
+export async function getPresets(): Promise<PresetsResponse> {
+  return await apiFetch<PresetsResponse>('/api/presets');
+}
+
+/**
+ * Get presets filtered by category
+ */
+export async function getPresetsByCategory(category: string): Promise<Preset[]> {
+  const response = await getPresets();
+  return response.presets.filter(p => p.category === category);
+}
+
+/**
+ * Get featured presets
+ */
+export async function getFeaturedPresets(): Promise<Preset[]> {
+  const response = await getPresets();
+  return response.presets.filter(p => p.featured);
 }
 
 /**
