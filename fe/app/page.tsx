@@ -10,6 +10,7 @@ import {
   PresetCard,
   BattleArena,
   ShareCard,
+  WaitlistForm,
 } from "@/components";
 import { getPresets, createBout, Preset, ApiError } from "@/lib/api";
 
@@ -112,6 +113,19 @@ export default function Home() {
   return (
     <Layout>
       <Hero />
+      
+      {/* Early Waitlist CTA */}
+      <section className="border-b-4 border-white bg-zinc-950 py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-center gap-6 md:flex-row md:gap-8">
+            <p className="text-lg font-bold uppercase tracking-wider text-zinc-400">
+              Be first in the arena
+            </p>
+            <WaitlistForm source="hero" />
+          </div>
+        </div>
+      </section>
+
       <Countdown />
       <HowItWorks />
 
@@ -218,6 +232,26 @@ export default function Home() {
             voteCount={1337}
             winnerColor="accent"
           />
+        </div>
+      </section>
+
+      {/* Waitlist Section */}
+      <section className="border-b-4 border-white bg-black py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-4xl font-black uppercase tracking-tighter text-white sm:text-5xl">
+              Don't Miss the Launch
+            </h2>
+            <p className="mt-4 text-lg text-zinc-400">
+              Darwin Day — February 12, 2026
+            </p>
+            <p className="mt-2 text-zinc-500">
+              Get notified when the arena opens.
+            </p>
+            <div className="mt-8 flex justify-center">
+              <WaitlistForm source="landing-bottom" />
+            </div>
+          </div>
         </div>
       </section>
     </Layout>
