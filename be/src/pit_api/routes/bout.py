@@ -197,9 +197,16 @@ async def stream_bout(bout_id: str):
             # Run the bout in a thread to avoid blocking the event loop
             # (Orchestrator is sync; this allows event loop to stay responsive)
             orchestrator = Orchestrator(db, events)
+            print(f"DEBUG: Starting bout={bout.id}, agents={len(agents)}, preset={preset_id}")
+            for i, agent in enumerate(agents):
+                print(f"DEBUG: Agent {i}: name={agent.name}, prompt_len={len(agent.system_prompt)}")
             try:
                 await asyncio.to_thread(orchestrator.run, bout, agents)
+                print(f"DEBUG: Bout {bout.id} completed, events={len(events_list)}")
             except Exception as e:
+                import traceback
+                print(f"DEBUG ERROR: {e}")
+                traceback.print_exc()
                 events_list.append(("error", {"code": "FATAL", "message": str(e)}))
 
             # Yield all events
