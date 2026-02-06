@@ -2,9 +2,10 @@
 
 import json
 
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, g, jsonify, request
 
 from pit_api.engine import AgentConfig, BoutConfig, Orchestrator, OrchestratorEvents, ShareGenerator
+from pit_api.middleware import require_auth
 from pit_api.models import Bout, Message, Metric
 from pit_api.models.base import SessionLocal
 from pit_api.store import preset_loader
@@ -14,8 +15,10 @@ bout_bp = Blueprint("bout", __name__, url_prefix="/api")
 
 
 @bout_bp.route("/bout", methods=["POST"])
+@require_auth
 def create_bout():
-    """Create and start a new bout."""
+    """Create and start a new bout. Requires authentication."""
+    user = g.current_user
     data = request.get_json() or {}
     preset_id = data.get("preset_id")
     topic = data.get("topic")
@@ -29,13 +32,20 @@ def create_bout():
     if not preset:
         return jsonify({"error": f"Unknown preset: {preset_id}"}), 400
 
+    # Check tier access (free users can only access 2-agent presets)
+    if user.tier.value == "free" and len(preset.agents) > 2:
+        return jsonify({
+            "error": "Premium required",
+            "message": f"{preset.name} requires a premium account.",
+        }), 403
+
     # Rate limiting
     ip_hash = hash_ip(request.remote_addr)
     db = SessionLocal()
 
     try:
         if not check_rate_limit(db, ip_hash):
-            Metric.log(db, "rate_limit_hit", ip_hash=ip_hash)
+            Metric.log(db, "rate_limit_hit", ip_hash=ip_hash, user_id=str(user.id))
             return jsonify(
                 {
                     "error": "Rate limit exceeded",
@@ -66,7 +76,7 @@ def create_bout():
         )
 
         bout = orchestrator.create(config)
-        Metric.log(db, "bout_start", bout_id=bout.id, ip_hash=ip_hash)
+        Metric.log(db, "bout_start", bout_id=bout.id, ip_hash=ip_hash, user_id=str(user.id))
 
         return jsonify(
             {

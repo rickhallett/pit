@@ -6,6 +6,7 @@ from .magic_link import MagicLink
 from .message import Message
 from .metric import Metric
 from .user import AcquisitionSource, User, UserTier
+from .vote import Vote, VoteType
 from .waitlist import Waitlist
 
 __all__ = [
@@ -19,5 +20,7 @@ __all__ = [
     "User",
     "UserTier",
     "AcquisitionSource",
+    "Vote",
+    "VoteType",
     "Waitlist",
 ]
