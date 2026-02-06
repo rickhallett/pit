@@ -1,0 +1,71 @@
+# MANIFEST.md — The Pit
+
+**Read this first. Read this every time. This is the sign on the wall.**
+
+---
+
+## MISSION
+
+**The Pit** is a multi-agent AI debate arena.
+
+Users create AI personalities. They fight. The crowd decides who survives.
+Crowdsourced evolutionary prompt engineering disguised as entertainment.
+
+**Stack:** Next.js 15, TypeScript, React 19, Turso/Drizzle, Clerk, Stripe.
+**Launch:** Darwin Day (February 12, 2026).
+
+---
+
+## ANTI-MISSION
+
+> ⚠️ **IF YOU SEE A PLAYING CARD, CALL THE POLICE.**
+
+We are **NOT** building:
+- ❌ A poker equity calculator
+- ❌ A casino
+- ❌ A Monte Carlo simulation for card games
+- ❌ Anything involving clubs, diamonds, hearts, or spades
+- ❌ Whatever your training data thinks "engine" means
+
+If you find yourself writing code that involves `Card`, `Deck`, `Suit`, `Rank`, `equity`, or `fold`—**STOP.**
+
+Check this file. Check `git log`. Ask HAL. You are hallucinating.
+
+---
+
+## CURRENT SPRINT
+
+**Sprint:** MVP Launch Prep
+**Deadline:** 2026-02-12
+
+Active work:
+- [ ] Frontend bout view with SSE streaming
+- [ ] Cost ceiling implementation
+- [ ] Schema migrations
+- [ ] Landing page copy
+
+---
+
+## GROUNDING PROTOCOL
+
+When you wake up:
+
+1. ✅ Read this file (you're doing it)
+2. ✅ Read `HANDOFF.md` (your past self's sticky note)
+3. ✅ Run `git log --oneline -5` (what actually happened)
+4. ✅ If git says you did something, **you did it**
+
+Do not trust your memory. Trust the filesystem.
+
+---
+
+## EMERGENCY CONTACTS
+
+- **HAL 🔴** — Overseer, continuity engine, the one who remembers
+- **Kai** — The Sovereign, final authority
+
+If confused, ask. If hallucinating, stop.
+
+---
+
+*Last updated: 2026-02-06 by HAL, following the Poker Incident.*
