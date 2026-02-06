@@ -64,5 +64,11 @@
     "agent": "Architect",
     "action": "Session complete — 9 PRs merged, codebase hardened",
     "justification": "Darwin Day prep complete — FastAPI migration, adversarial audit, SEC fix all shipped"
+  },
+  {
+    "timestamp": "2026-02-06T18:15:00Z",
+    "agent": "Architect",
+    "action": "Created PR #32: Preset enhancements — per-preset max_turns + Darwin Special hero",
+    "justification": "Clean extraction of legitimate features from contaminated PR #9 — no poker code"
   }
 ]
