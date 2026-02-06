@@ -82,5 +82,17 @@
     "agent": "Architect",
     "action": "PR review cycle complete — #14, #15, #16, #32 merged; #9, #31 closed",
     "justification": "Launch blockers clear. Process note: merged before review complete, will wait for approval next time"
+  },
+  {
+    "timestamp": "2026-02-06T18:57:30Z",
+    "agent": "Architect",
+    "action": "Added INFRASTRUCTURE DECISIONS table to MANIFEST.md",
+    "justification": "Analyst flagged terminology drift pattern - second incident today. Table provides single source of truth for stack decisions."
+  },
+  {
+    "timestamp": "2026-02-06T19:02:00Z",
+    "agent": "Architect",
+    "action": "Created TopicInputModal component + wired up custom topic feature",
+    "justification": "Feature: presets with requires_input:true now show topic input modal before bout creation. Validation: non-empty, ≤280 chars, ≤1024 bytes."
   }
 ]

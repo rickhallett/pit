@@ -21,6 +21,7 @@ export interface Preset {
   sort_order: number;
   requires_input: boolean;
   input_label?: string;
+  input_examples?: string[];
   turn_pattern?: string;
   max_turns?: { standard: number; juiced: number; unleashed: number };
   launch_day_hero?: boolean;
