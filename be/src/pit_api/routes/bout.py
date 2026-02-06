@@ -1,8 +1,12 @@
 """Bout API — create, run, and stream bouts."""
 
+import asyncio
 import json
+from typing import AsyncGenerator, Optional
 
-from flask import Blueprint, Response, jsonify, request
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
 from pit_api.engine import AgentConfig, BoutConfig, Orchestrator, OrchestratorEvents, ShareGenerator
 from pit_api.models import Bout, Message, Metric
@@ -10,38 +14,42 @@ from pit_api.models.base import SessionLocal
 from pit_api.store import preset_loader
 from pit_api.utils import check_rate_limit, hash_ip
 
-bout_bp = Blueprint("bout", __name__, url_prefix="/api")
+bout_router = APIRouter(prefix="/api", tags=["bout"])
 
 
-@bout_bp.route("/bout", methods=["POST"])
-def create_bout():
+class CreateBoutRequest(BaseModel):
+    preset_id: str
+    topic: Optional[str] = None
+    model_tier: Optional[str] = "standard"
+
+
+@bout_router.post("/bout", status_code=201)
+async def create_bout(request: Request, body: CreateBoutRequest):
     """Create and start a new bout."""
-    data = request.get_json() or {}
-    preset_id = data.get("preset_id")
-    topic = data.get("topic")
-    model_tier = data.get("model_tier", "standard")
-
-    if not preset_id:
-        return jsonify({"error": "preset_id is required"}), 400
+    preset_id = body.preset_id
+    topic = body.topic
+    model_tier = body.model_tier
 
     # Load preset
     preset = preset_loader.load_one(preset_id)
     if not preset:
-        return jsonify({"error": f"Unknown preset: {preset_id}"}), 400
+        raise HTTPException(status_code=400, detail=f"Unknown preset: {preset_id}")
 
     # Rate limiting
-    ip_hash = hash_ip(request.remote_addr)
+    client_ip = request.client.host if request.client else "unknown"
+    ip_hash = hash_ip(client_ip)
     db = SessionLocal()
 
     try:
         if not check_rate_limit(db, ip_hash):
             Metric.log(db, "rate_limit_hit", ip_hash=ip_hash)
-            return jsonify(
-                {
+            raise HTTPException(
+                status_code=429,
+                detail={
                     "error": "Rate limit exceeded",
                     "message": "You've had your share for now. Come back later.",
-                }
-            ), 429
+                },
+            )
 
         # Create agents from preset
         agents = [
@@ -54,7 +62,7 @@ def create_bout():
             for agent in agents:
                 agent.system_prompt = agent.system_prompt.replace("{topic}", topic)
 
-        # Create and run bout
+        # Create bout
         orchestrator = Orchestrator(db)
 
         config = BoutConfig(
@@ -68,27 +76,25 @@ def create_bout():
         bout = orchestrator.create(config)
         Metric.log(db, "bout_start", bout_id=bout.id, ip_hash=ip_hash)
 
-        return jsonify(
-            {
-                "bout_id": bout.id,
-                "status": bout.status,
-                "stream_url": f"/api/bout/{bout.id}/stream",
-                "agents": [{"name": a.name, "role": a.role} for a in preset.agents],
-            }
-        ), 201
+        return {
+            "bout_id": bout.id,
+            "status": bout.status,
+            "stream_url": f"/api/bout/{bout.id}/stream",
+            "agents": [{"name": a.name, "role": a.role} for a in preset.agents],
+        }
 
     finally:
         db.close()
 
 
-@bout_bp.route("/bout/<bout_id>", methods=["GET"])
-def get_bout(bout_id: str):
+@bout_router.get("/bout/{bout_id}")
+async def get_bout(bout_id: str):
     """Get bout status and transcript."""
     db = SessionLocal()
     try:
         bout = db.query(Bout).filter(Bout.id == bout_id).first()
         if not bout:
-            return jsonify({"error": "Bout not found"}), 404
+            raise HTTPException(status_code=404, detail="Bout not found")
 
         messages = (
             db.query(Message).filter(Message.bout_id == bout_id).order_by(Message.turn_number).all()
@@ -96,14 +102,14 @@ def get_bout(bout_id: str):
 
         result = bout.to_dict()
         result["messages"] = [m.to_dict() for m in messages]
-        return jsonify(result)
+        return result
 
     finally:
         db.close()
 
 
-@bout_bp.route("/bout/<bout_id>/stream", methods=["GET"])
-def stream_bout(bout_id: str):
+@bout_router.get("/bout/{bout_id}/stream")
+async def stream_bout(bout_id: str):
     """
     Stream bout events via Server-Sent Events.
 
@@ -114,17 +120,18 @@ def stream_bout(bout_id: str):
     - bout_complete: {bout_id, total_cost}
     - error: {code, message}
     """
-    # Pre-validation with a separate session (closed before generator)
+    # Pre-validation with a separate session
     db_check = SessionLocal()
     try:
         bout = db_check.query(Bout).filter(Bout.id == bout_id).first()
         if not bout:
-            return jsonify({"error": "Bout not found"}), 404
+            raise HTTPException(status_code=404, detail="Bout not found")
 
         if bout.status != "pending":
-            return jsonify(
-                {"error": "Bout already started or completed", "status": bout.status}
-            ), 400
+            raise HTTPException(
+                status_code=400,
+                detail={"error": "Bout already started or completed", "status": bout.status},
+            )
 
         bout_id_validated = bout.id
         preset_id = bout.preset_id
@@ -132,10 +139,10 @@ def stream_bout(bout_id: str):
     finally:
         db_check.close()
 
-    # Load preset (no DB needed)
+    # Load preset
     preset = preset_loader.load_one(preset_id)
     if not preset:
-        return jsonify({"error": "Preset not found"}), 500
+        raise HTTPException(status_code=500, detail="Preset not found")
 
     agents = [
         AgentConfig(name=a.name, role=a.role, system_prompt=a.system_prompt) for a in preset.agents
@@ -146,11 +153,11 @@ def stream_bout(bout_id: str):
         for agent in agents:
             agent.system_prompt = agent.system_prompt.replace("{topic}", topic)
 
-    def generate():
-        """SSE generator for streaming bout events.
+    async def event_generator() -> AsyncGenerator[str, None]:
+        """Async SSE generator for streaming bout events.
 
-        DB session is created and managed inside the generator to ensure
-        it stays open for the duration of the streaming response.
+        Note: Currently runs the bout synchronously and yields all events at the end.
+        TODO: For true real-time streaming, convert Orchestrator to async.
         """
         db = SessionLocal()
         try:
@@ -160,26 +167,23 @@ def stream_bout(bout_id: str):
                 yield f"event: error\ndata: {json.dumps({'code': 'NOT_FOUND', 'message': 'Bout not found'})}\n\n"
                 return
 
-            events_queue = []
+            # Collect events synchronously
+            events_list: list[tuple[str, dict]] = []
 
             def on_turn_start(bid, name, turn):
-                events_queue.append(("turn_start", {"agent_name": name, "turn_number": turn}))
+                events_list.append(("turn_start", {"agent_name": name, "turn_number": turn}))
 
             def on_turn_end(bid, name, turn, msg_id):
-                events_queue.append(
-                    (
-                        "turn_end",
-                        {"agent_name": name, "turn_number": turn, "message_id": msg_id},
-                    )
+                events_list.append(
+                    ("turn_end", {"agent_name": name, "turn_number": turn, "message_id": msg_id})
                 )
 
             def on_complete(bid, cost):
-                events_queue.append(("bout_complete", {"bout_id": bid, "total_cost": cost}))
-                # Log metric for bout completion
                 Metric.log(db, "bout_complete", bout_id=bid, payload={"total_cost": cost})
+                events_list.append(("bout_complete", {"bout_id": bid, "total_cost": cost}))
 
             def on_error(bid, msg):
-                events_queue.append(("error", {"code": "BOUT_ERROR", "message": msg}))
+                events_list.append(("error", {"code": "BOUT_ERROR", "message": msg}))
 
             events = OrchestratorEvents(
                 on_turn_start=on_turn_start,
@@ -188,56 +192,28 @@ def stream_bout(bout_id: str):
                 on_error=on_error,
             )
 
-            # Run the bout (blocking)
+            # Run the bout synchronously
             orchestrator = Orchestrator(db, events)
             try:
                 orchestrator.run(bout, agents)
             except Exception as e:
-                events_queue.append(("error", {"code": "FATAL", "message": str(e)}))
+                events_list.append(("error", {"code": "FATAL", "message": str(e)}))
 
             # Yield all events
-            for event_type, data in events_queue:
+            for event_type, data in events_list:
                 yield f"event: {event_type}\ndata: {json.dumps(data)}\n\n"
+                # Small delay to allow client to process
+                await asyncio.sleep(0.01)
+
         finally:
             db.close()
 
-    return Response(
-        generate(),
-        mimetype="text/event-stream",
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering
         },
     )
-
-
-@bout_bp.route("/bout/<bout_id>/share", methods=["GET"])
-def get_share_text(bout_id: str):
-    """Generate share text for a completed bout."""
-    db = SessionLocal()
-    try:
-        bout = db.query(Bout).filter(Bout.id == bout_id).first()
-        if not bout:
-            return jsonify({"error": "Bout not found"}), 404
-
-        if bout.status != "complete":
-            return jsonify({"error": "Bout not complete"}), 400
-
-        messages = (
-            db.query(Message).filter(Message.bout_id == bout_id).order_by(Message.turn_number).all()
-        )
-
-        generator = ShareGenerator()
-        share = generator.generate(bout, messages)
-
-        Metric.log(db, "share_generated", bout_id=bout_id)
-
-        return jsonify(
-            {
-                "text": share.text,
-                "permalink": share.permalink,
-            }
-        )
-
-    finally:
-        db.close()
