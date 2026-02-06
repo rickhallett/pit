@@ -1,8 +1,11 @@
 """PresetLoader — loads bout presets from JSON/Markdown files."""
 
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -66,7 +69,7 @@ class PresetLoader:
             return None
 
         try:
-            with open(meta_file) as f:
+            with open(meta_file, encoding="utf-8") as f:
                 meta = json.load(f)
 
             agents = []
@@ -74,7 +77,7 @@ class PresetLoader:
                 # Load system prompt from .md file
                 prompt_file = preset_dir / f"{agent_meta['id']}.md"
                 if prompt_file.exists():
-                    system_prompt = prompt_file.read_text()
+                    system_prompt = prompt_file.read_text(encoding="utf-8")
                 else:
                     system_prompt = agent_meta.get(
                         "fallback_prompt", "You are a participant in a debate."
@@ -99,5 +102,5 @@ class PresetLoader:
             )
 
         except (json.JSONDecodeError, KeyError) as e:
-            print(f"Error loading preset {preset_dir}: {e}")
+            logger.warning("Error loading preset %s: %s", preset_dir, e)
             return None

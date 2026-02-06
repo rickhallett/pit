@@ -3,7 +3,7 @@
 from datetime import datetime, timezone
 
 from nanoid import generate
-from sqlalchemy import Column, DateTime, Float, Integer, String, Text
+from sqlalchemy import Column, DateTime, Float, Index, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 
 from .base import Base
@@ -18,6 +18,7 @@ class Bout(Base):
     """A bout is a single AI battle between agents."""
 
     __tablename__ = "bouts"
+    __table_args__ = (Index("ix_bouts_ip_hash_created_at", "ip_hash", "created_at"),)
 
     id = Column(String(10), primary_key=True, default=generate_bout_id)
     preset_id = Column(String(50), nullable=True)  # null for custom bouts
@@ -34,7 +35,7 @@ class Bout(Base):
     created_at = Column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)
     )
-    completed_at = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
     ip_hash = Column(String(64), nullable=True)  # SHA-256 of IP for rate limiting
     extra = Column(JSONB, nullable=True)  # flexible JSON blob
 

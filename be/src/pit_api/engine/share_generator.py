@@ -119,4 +119,8 @@ class ShareGenerator:
         text = text.replace("\n", " ").strip()
         if len(text) <= max_len:
             return text
-        return text[: max_len - 3].rsplit(" ", 1)[0] + "..."
+        truncated = text[: max_len - 3]
+        # Try to break at word boundary, fall back to hard cut
+        if " " in truncated:
+            truncated = truncated.rsplit(" ", 1)[0]
+        return truncated + "..."

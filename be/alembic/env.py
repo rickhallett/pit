@@ -26,7 +26,7 @@ if os.environ.get("DATABASE_URL"):
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pit_api.models import Base
+from pit_api.models import Base  # noqa: E402
 
 target_metadata = Base.metadata
 

@@ -19,7 +19,7 @@ uv run ruff check src/ tests/ --fix
 echo "→ Format (ruff)..."
 uv run ruff format src/ tests/
 
-echo "→ Type check (basic Python validation)..."
+echo "→ Import validation..."
 PYTHONPATH=src uv run python -c "import pit_api; print(f'  pit_api v{pit_api.__version__} OK')"
 
 echo "→ Tests (pytest)..."

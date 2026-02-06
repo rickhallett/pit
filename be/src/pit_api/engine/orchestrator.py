@@ -30,6 +30,7 @@ class OrchestratorEvents:
     """Event callbacks for the orchestrator."""
 
     on_turn_start: Callable[[str, str, int], None] | None = None  # bout_id, agent_name, turn
+    # TODO: on_token is unused until streaming is implemented via AgentRunner.run_streaming()
     on_token: Callable[[str, str], None] | None = None  # bout_id, token
     on_turn_end: Callable[[str, str, int, str], None] | None = None  # bout_id, agent, turn, msg_id
     on_bout_complete: Callable[[str, float], None] | None = None  # bout_id, total_cost
@@ -99,15 +100,14 @@ class Orchestrator:
         bout.status = "running"
         self.db.commit()
 
-        # Initialize components
-        model = self._get_model_for_tier(bout.model_tier)
-        max_turns = self._get_turns_for_tier(bout.model_tier)
-
-        runner = AgentRunner(model=model)
-        turn_manager = TurnManager(agents)
-        meter = TokenMeter()
-
         try:
+            # Initialize components (inside try so failures mark bout as error)
+            model = self._get_model_for_tier(bout.model_tier)
+            max_turns = self._get_turns_for_tier(bout.model_tier)
+
+            runner = AgentRunner(model=model)
+            turn_manager = TurnManager(agents)
+            meter = TokenMeter()
             for turn_num, agent in turn_manager.turns(max_turns):
                 # Emit turn start event
                 if self.events.on_turn_start:

@@ -33,7 +33,11 @@ class AgentRunner:
 
     def __init__(self, model: str | None = None):
         """Initialize with optional model override."""
-        self.client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
+        self.client = anthropic.Anthropic(
+            api_key=config.ANTHROPIC_API_KEY,
+            timeout=30.0,
+            max_retries=2,
+        )
         self.model = model or config.MODEL_STANDARD
 
     def run(
