@@ -90,10 +90,21 @@
     "justification": "Analyst flagged terminology drift pattern - second incident today. Table provides single source of truth for stack decisions."
   },
   {
+    "timestamp": "2026-02-06T18:58:00Z",
+    "agent": "Architect",
+    "action": "Legacy assessment",
+    "justification": "Identified db/ folder as obsolete TypeScript/Drizzle setup, Python be/ folder is the active backend. Prepared cleanup plan for docs and legacy code."
+  },
+  {
     "timestamp": "2026-02-06T19:02:00Z",
     "agent": "Architect",
     "action": "Created TopicInputModal component + wired up custom topic feature",
     "justification": "Feature: presets with requires_input:true now show topic input modal before bout creation. Validation: non-empty, ≤280 chars, ≤1024 bytes."
+  },
+  {
+    "timestamp": "2026-02-06T19:18:00Z",
+    "agent": "Architect",
+    "action": "Resolved merge conflicts, pushed PR #37 — now mergeable",
+    "justification": "PR had CONFLICTING status due to HANDOFF.md divergence. Merged main into branch, resolved conflict taking latest state, force-pushed. Ready for Critic review."
   }
 ]
-{"timestamp": "2026-02-06T18:58:00Z", "agent": "architect", "action": "legacy_assessment", "justification": "Identified db/ folder as obsolete TypeScript/Drizzle setup, Python be/ folder is the active backend. Prepared cleanup plan for docs and legacy code."}

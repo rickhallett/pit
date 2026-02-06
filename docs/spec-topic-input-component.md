@@ -1,13 +1,26 @@
-# Component Spec: Inline Topic Input
+# Component Spec: Topic Input
 
 **Author:** Architect 📐  
 **Date:** 2026-02-06  
-**Status:** DRAFT — awaiting review  
+**Status:** SUPERSEDED — implemented as modal instead  
 **Parent:** `docs/scope-gloves-off-ux.md`
 
 ---
 
-## Overview
+## Implementation Note
+
+> **Design pivot:** The original spec proposed inline expansion in PresetCard.
+> The actual implementation uses a modal (`TopicInputModal.tsx`) because:
+> - Cleaner separation of concerns
+> - Better focus management for accessibility
+> - Simpler state management (no card expansion logic)
+> - Modal pattern is more familiar to users
+>
+> See `fe/components/TopicInputModal.tsx` for the actual implementation.
+
+---
+
+## Original Spec (Historical)
 
 Add inline topic input to PresetCard for presets with `inputRequired: true`. No modals, no new routes — the card expands to show the input field.
 
