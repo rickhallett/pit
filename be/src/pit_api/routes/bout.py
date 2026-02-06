@@ -194,10 +194,11 @@ async def stream_bout(bout_id: str):
                 on_error=on_error,
             )
 
-            # Run the bout synchronously
+            # Run the bout in a thread to avoid blocking the event loop
+            # (Orchestrator is sync; this allows event loop to stay responsive)
             orchestrator = Orchestrator(db, events)
             try:
-                orchestrator.run(bout, agents)
+                await asyncio.to_thread(orchestrator.run, bout, agents)
             except Exception as e:
                 events_list.append(("error", {"code": "FATAL", "message": str(e)}))
 
