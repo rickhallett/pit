@@ -44,10 +44,10 @@ class PresetDict(TypedDict, total=False):
 @dataclass
 class PresetLoader:
     """Loads and caches preset configurations."""
-    
+
     _presets: dict[str, PresetDict] | None = None
     _config_path: Path | None = None
-    
+
     def __init__(self, config_path: Path | None = None):
         """Initialize loader with optional config path."""
         if config_path is None:
@@ -55,7 +55,7 @@ class PresetLoader:
             config_path = Path(__file__).parent.parent.parent.parent / "config" / "presets.json"
         self._config_path = config_path
         self._presets = None
-    
+
     def _load(self) -> dict[str, PresetDict]:
         """Load presets from JSON file."""
         if self._presets is None:
@@ -63,26 +63,26 @@ class PresetLoader:
                 data = json.load(f)
             self._presets = {p["preset_id"]: p for p in data["presets"]}
         return self._presets
-    
+
     def get(self, preset_id: str) -> PresetDict | None:
         """Get a preset by ID."""
         return self._load().get(preset_id)
-    
+
     def get_all(self) -> list[PresetDict]:
         """Get all presets."""
         return list(self._load().values())
-    
+
     def get_featured(self) -> list[PresetDict]:
         """Get featured presets."""
         return [p for p in self._load().values() if p.get("featured")]
-    
+
     def get_launch_hero(self) -> PresetDict | None:
         """Get the launch day hero preset."""
         for p in self._load().values():
             if p.get("launch_day_hero"):
                 return p
         return None
-    
+
     def get_max_turns(self, preset_id: str, tier: str = "standard") -> int:
         """Get max turns for a preset and tier."""
         preset = self.get(preset_id)
@@ -90,7 +90,7 @@ class PresetLoader:
             return 12  # Default fallback
         max_turns = preset.get("max_turns", {})
         return max_turns.get(tier, 12)
-    
+
     def get_turn_pattern(self, preset_id: str) -> str:
         """Get turn pattern for a preset."""
         preset = self.get(preset_id)

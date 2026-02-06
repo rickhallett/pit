@@ -11,6 +11,11 @@ class Config:
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://pit:pit@localhost:5432/pit")
 
+    # Email (Resend)
+    RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
+    FROM_EMAIL: str = os.getenv("FROM_EMAIL", "The Pit <noreply@thepit.cloud>")
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://thepit.cloud")
+
     # Anthropic
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
 

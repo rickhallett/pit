@@ -43,7 +43,8 @@
         "standard": 12,
         "juiced": 24,
         "unleashed": 48
-      }
+      },
+      "maxMessages": 36
     },
     {
       "preset_id": "roast-battle",
@@ -87,7 +88,8 @@
         "standard": 12,
         "juiced": 24,
         "unleashed": 48
-      }
+      },
+      "maxMessages": 36
     },
     {
       "preset_id": "shark-pit",
@@ -131,7 +133,8 @@
         "standard": 12,
         "juiced": 24,
         "unleashed": 48
-      }
+      },
+      "maxMessages": 36
     },
     {
       "preset_id": "on-the-couch",
@@ -175,7 +178,8 @@
         "standard": 12,
         "juiced": 24,
         "unleashed": 48
-      }
+      },
+      "maxMessages": 36
     },
     {
       "preset_id": "gloves-off",
@@ -221,7 +225,8 @@
         "standard": 12,
         "juiced": 24,
         "unleashed": 48
-      }
+      },
+      "maxMessages": 36
     },
     {
       "preset_id": "first-contact",
@@ -251,7 +256,8 @@
         "standard": 12,
         "juiced": 24,
         "unleashed": 48
-      }
+      },
+      "maxMessages": 24
     },
     {
       "preset_id": "writers-room",
@@ -295,7 +301,8 @@
         "standard": 12,
         "juiced": 24,
         "unleashed": 48
-      }
+      },
+      "maxMessages": 36
     },
     {
       "preset_id": "darwin-special",
@@ -340,7 +347,8 @@
         "standard": 12,
         "juiced": 24,
         "unleashed": 48
-      }
+      },
+      "maxMessages": 36
     },
     {
       "preset_id": "mansion",
@@ -384,7 +392,8 @@
         "standard": 12,
         "juiced": 24,
         "unleashed": 48
-      }
+      },
+      "maxMessages": 36
     },
     {
       "preset_id": "summit",
@@ -442,7 +451,8 @@
         "standard": 18,
         "juiced": 36,
         "unleashed": 72
-      }
+      },
+      "maxMessages": 36
     },
     {
       "preset_id": "flatshare",
@@ -493,7 +503,8 @@
         "standard": 15,
         "juiced": 30,
         "unleashed": 60
-      }
+      },
+      "maxMessages": 36
     }
   ]
 }

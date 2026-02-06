@@ -62,13 +62,13 @@ class Orchestrator:
     def _get_turns_for_tier(self, tier: str, preset_id: str | None = None) -> int:
         """
         Get turn count for a tier.
-        
+
         If preset_id is provided, uses the preset's max_turns.
         Otherwise falls back to global config.
         """
         if preset_id:
             return preset_loader.get_max_turns(preset_id, tier)
-        
+
         # Fallback to global config
         return {
             "standard": config.TURNS_STANDARD,
