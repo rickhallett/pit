@@ -46,6 +46,23 @@ Active work:
 
 ---
 
+## INFRASTRUCTURE DECISIONS
+
+Canonical choices. If it's not in this table, it's not decided.
+
+| Component | Decision | Rationale | Date |
+|-----------|----------|-----------|------|
+| Database | PostgreSQL (Railway) | Managed, cheap, works | 2026-02-06 |
+| Auth | Clerk | Drop-in, handles complexity | 2026-02-06 |
+| Frontend Hosting | Vercel | Next.js native, zero-config | 2026-02-06 |
+| Backend Hosting | Railway | Python/FastAPI, co-located with DB | 2026-02-06 |
+| Framework (FE) | Next.js 15 + React 19 | App router, RSC, modern | 2026-02-06 |
+| Framework (BE) | FastAPI + SQLAlchemy | Async, typed, battle-tested | 2026-02-06 |
+
+*Update this table when infrastructure decisions change. No decision without an entry.*
+
+---
+
 ## GROUNDING PROTOCOL
 
 When you wake up:
