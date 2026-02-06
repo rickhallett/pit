@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from pit_api.config import config
 from pit_api.models import Bout, Message
+from pit_api.presets import preset_loader
 
 from .agent_runner import AgentConfig, AgentRunner
 from .token_meter import TokenMeter
@@ -58,8 +59,17 @@ class Orchestrator:
             "unleashed": config.MODEL_UNLEASHED,
         }.get(tier, config.MODEL_STANDARD)
 
-    def _get_turns_for_tier(self, tier: str) -> int:
-        """Map tier name to turn count."""
+    def _get_turns_for_tier(self, tier: str, preset_id: str | None = None) -> int:
+        """
+        Get turn count for a tier.
+        
+        If preset_id is provided, uses the preset's max_turns.
+        Otherwise falls back to global config.
+        """
+        if preset_id:
+            return preset_loader.get_max_turns(preset_id, tier)
+        
+        # Fallback to global config
         return {
             "standard": config.TURNS_STANDARD,
             "juiced": config.TURNS_JUICED,
@@ -103,7 +113,7 @@ class Orchestrator:
         try:
             # Initialize components (inside try so failures mark bout as error)
             model = self._get_model_for_tier(bout.model_tier)
-            max_turns = self._get_turns_for_tier(bout.model_tier)
+            max_turns = self._get_turns_for_tier(bout.model_tier, bout.preset_id)
 
             runner = AgentRunner(model=model)
             turn_manager = TurnManager(agents)
