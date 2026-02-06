@@ -1,32 +1,50 @@
-"""Flask application factory."""
+"""FastAPI application factory."""
 
-from flask import Flask
-from flask_cors import CORS
+import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from pit_api.config import config
-from pit_api.routes import bout_bp, health_bp, presets_bp, waitlist_bp
+from pit_api.routes import bout_router, health_router, presets_router, waitlist_router
 
 
-def create_app() -> Flask:
-    """Create and configure the Flask application."""
-    app = Flask(__name__)
+def create_app() -> FastAPI:
+    """Create and configure the FastAPI application."""
+    app = FastAPI(
+        title="The Pit API",
+        description="AI debate arena backend",
+        version="1.0.0",
+    )
 
     # CORS for frontend
-    CORS(app, origins=["http://localhost:3000", "https://thepit.cloud"])
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:3000", "https://thepit.cloud"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-    # Register blueprints
-    app.register_blueprint(health_bp)
-    app.register_blueprint(bout_bp)
-    app.register_blueprint(waitlist_bp)
-    app.register_blueprint(presets_bp)
+    # Register routers
+    app.include_router(health_router)
+    app.include_router(bout_router)
+    app.include_router(waitlist_router)
+    app.include_router(presets_router)
 
     return app
 
 
+app = create_app()
+
+
 def main():
     """Run the development server."""
-    app = create_app()
-    app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
+    uvicorn.run(
+        "pit_api.app:app",
+        host=config.HOST,
+        port=config.PORT,
+        reload=config.DEBUG,
+    )
 
 
 if __name__ == "__main__":

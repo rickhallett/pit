@@ -1,8 +1,8 @@
 """API Routes."""
 
-from .bout import bout_bp
-from .health import health_bp
-from .presets import presets_bp
-from .waitlist import waitlist_bp
+from .bout import bout_router
+from .health import health_router
+from .presets import presets_router
+from .waitlist import waitlist_router
 
-__all__ = ["bout_bp", "waitlist_bp", "presets_bp", "health_bp"]
+__all__ = ["bout_router", "waitlist_router", "presets_router", "health_router"]

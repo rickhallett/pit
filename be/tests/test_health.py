@@ -1,6 +1,7 @@
 """Test health endpoint."""
 
 import pytest
+from fastapi.testclient import TestClient
 
 from pit_api.app import create_app
 
@@ -9,15 +10,13 @@ from pit_api.app import create_app
 def client():
     """Create test client."""
     app = create_app()
-    app.config["TESTING"] = True
-    with app.test_client() as client:
-        yield client
+    return TestClient(app)
 
 
 def test_health_check(client):
     """Test that health endpoint returns healthy status."""
     response = client.get("/health")
     assert response.status_code == 200
-    data = response.get_json()
+    data = response.json()
     assert data["status"] == "healthy"
     assert data["service"] == "pit-api"

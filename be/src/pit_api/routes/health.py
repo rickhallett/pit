@@ -1,11 +1,11 @@
 """Health check endpoint."""
 
-from flask import Blueprint, jsonify
+from fastapi import APIRouter
 
-health_bp = Blueprint("health", __name__)
+health_router = APIRouter(tags=["health"])
 
 
-@health_bp.route("/health", methods=["GET"])
-def health_check():
+@health_router.get("/health")
+async def health_check():
     """Health check endpoint for load balancers and monitoring."""
-    return jsonify({"status": "healthy", "service": "pit-api"})
+    return {"status": "healthy", "service": "pit-api"}
