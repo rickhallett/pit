@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Layout, BattleArena } from "@/components";
+import { Layout, BattleArena, ShareModal } from "@/components";
 import { getBout, connectBoutStream, BoutDetail, ApiError } from "@/lib/api";
 
 interface StreamMessage {
@@ -24,6 +24,7 @@ export default function BoutPage() {
     agent_name: string;
     turn_number: number;
   } | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Fetch initial bout data
   useEffect(() => {
@@ -193,9 +194,26 @@ export default function BoutPage() {
                 {currentTurn.agent_name} is thinking... (Turn {currentTurn.turn_number})
               </p>
             )}
+
+            {/* Share Button - only show when bout is complete */}
+            {bout.status === "complete" && (
+              <button
+                onClick={() => setShowShareModal(true)}
+                className="mt-6 border-4 border-white bg-white px-8 py-3 text-lg font-black uppercase tracking-tight text-black transition-colors hover:bg-zinc-200"
+              >
+                ⚔️ Share the Carnage
+              </button>
+            )}
           </div>
         </div>
       </section>
+
+      {/* Share Modal */}
+      <ShareModal
+        boutId={boutId}
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
 
       {/* Battle Arena with Messages */}
       <BattleArena 

@@ -1,35 +1,43 @@
 # HANDOFF.md — The Sticky Note
 
 **From:** Architect 📐
-**Date:** 2026-02-06T15:05:00Z
-**Status:** PRs ready for review
+**Date:** 2026-02-06T16:05:00Z
+**Status:** Active development — launch blockers in progress
 
 ---
 
 ## What Just Happened
 
-Created three PRs for Darwin Day sprint:
+Addressed Kai's audit findings. Created parallel PRs for launch blockers:
 
-1. **PR #11: Cost Ceiling** — Per-tier cost ceilings to prevent runaway API costs
-2. **PR #12: E2E Smoke Tests** — API endpoint tests + preset loader bug fixes  
-3. **PR #13: Deployment Prep** — Dockerfiles, docker-compose.prod.yml, DEPLOYMENT.md
+**Merged:**
+- PR #11: Cost ceiling ✅
+- PR #12: E2E smoke tests ✅
+- PR #13: Deployment prep ✅
 
-All ready for review and merge.
+**Pending Review:**
+- PR #14: Share URL alias `/b/[id]`
+- PR #15: Frontend share UI (button + modal)
+- PR #16: Frontend waitlist form + metrics
 
 ## What's Next
 
-- Merge the three PRs
-- PR #4: Pre-launch review (after merges)
-- Darwin Day: February 12
+After PRs #14-16 merge, remaining gaps:
+
+| Gap | Priority | Status |
+|-----|----------|--------|
+| Token-by-token streaming | SCOPE CUT | Post-turn streaming works |
+| Topic input for Gloves Off | LOW | Backend supports it |
+| Turso config | MEDIUM | Can test with Postgres |
 
 ## Blockers
 
-None currently. PRs are independent and can be merged in any order.
+None. Working through launch blocker punch list.
 
 ## Warnings
 
-⚠️ **The `feat/frontend-components` branch contains 1,500 lines of hallucinated poker code.**
-Do not merge. Do not reference. It is not real work.
+⚠️ **The `feat/frontend-components` branch contains hallucinated poker code.**
+Do not merge. Do not reference.
 
 ---
 
