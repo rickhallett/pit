@@ -240,7 +240,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-4xl font-black uppercase tracking-tighter text-white sm:text-5xl">
-              Don't Miss the Launch
+              Don&apos;t Miss the Launch
             </h2>
             <p className="mt-4 text-lg text-zinc-400">
               Darwin Day — February 12, 2026
