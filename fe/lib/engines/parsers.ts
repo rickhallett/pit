@@ -28,17 +28,18 @@ type Suit = typeof VALID_SUITS[number];
 export function parseCard(input: string): Card {
   const normalized = input.trim().toUpperCase();
   
-  if (normalized.length !== 2) {
-    throw new PokerEngineError('INVALID_HAND', `Invalid card: ${input}`);
-  }
-  
-  let rank = normalized[0] as string;
-  let suit = normalized[1].toLowerCase() as string;
-  
   // Handle '10' -> 'T'
-  if (rank === '1' && normalized.length === 3) {
+  let rank: string;
+  let suit: string;
+  
+  if (normalized.length === 3 && normalized.startsWith('10')) {
     rank = 'T';
     suit = normalized[2].toLowerCase();
+  } else if (normalized.length === 2) {
+    rank = normalized[0];
+    suit = normalized[1].toLowerCase();
+  } else {
+    throw new PokerEngineError('INVALID_HAND', `Invalid card: ${input}`);
   }
   
   if (!VALID_RANKS.includes(rank as Rank)) {
