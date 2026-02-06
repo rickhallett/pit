@@ -220,3 +220,33 @@ async def stream_bout(bout_id: str):
             "X-Accel-Buffering": "no",  # Disable nginx buffering
         },
     )
+
+
+@bout_router.get("/bout/{bout_id}/share")
+async def get_bout_share(bout_id: str):
+    """Generate share text for a completed bout."""
+    db = SessionLocal()
+    try:
+        bout = db.query(Bout).filter(Bout.id == bout_id).first()
+        if not bout:
+            raise HTTPException(status_code=404, detail="Bout not found")
+
+        if bout.status != "complete":
+            raise HTTPException(status_code=400, detail="Bout not complete")
+
+        messages = (
+            db.query(Message).filter(Message.bout_id == bout_id).order_by(Message.turn_number).all()
+        )
+
+        generator = ShareGenerator()
+        share = generator.generate(bout, messages)
+
+        Metric.log(db, "share_generated", bout_id=bout_id)
+
+        return {
+            "text": share.text,
+            "permalink": share.permalink,
+        }
+
+    finally:
+        db.close()
