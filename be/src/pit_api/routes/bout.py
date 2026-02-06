@@ -175,6 +175,8 @@ def stream_bout(bout_id: str):
 
             def on_complete(bid, cost):
                 events_queue.append(("bout_complete", {"bout_id": bid, "total_cost": cost}))
+                # Log metric for bout completion
+                Metric.log(db, "bout_complete", bout_id=bid, payload={"total_cost": cost})
 
             def on_error(bid, msg):
                 events_queue.append(("error", {"code": "BOUT_ERROR", "message": msg}))

@@ -5,7 +5,7 @@ import re
 from flask import Blueprint, jsonify, request
 from sqlalchemy.exc import IntegrityError
 
-from pit_api.models import Waitlist
+from pit_api.models import Metric, Waitlist
 from pit_api.models.base import SessionLocal
 from pit_api.utils import hash_ip
 
@@ -34,6 +34,10 @@ def add_to_waitlist():
         entry = Waitlist(email=email, source=source, ip_hash=ip_hash)
         db.add(entry)
         db.commit()
+
+        # Log metric
+        Metric.log(db, "waitlist_signup", payload={"source": source}, ip_hash=ip_hash)
+
         return jsonify({"status": "success", "message": "You're in!"}), 201
 
     except IntegrityError:

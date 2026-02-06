@@ -63,7 +63,7 @@ export interface BoutDetail {
 
 export interface SSEEvent {
   type: 'turn_start' | 'turn_end' | 'bout_complete' | 'error' | 'token';
-  data: any;
+  data: unknown;
 }
 
 // API Configuration
