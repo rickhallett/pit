@@ -4,6 +4,10 @@ import os
 from dataclasses import dataclass
 
 
+class ConfigurationError(Exception):
+    """Raised when required configuration is missing or invalid."""
+
+
 @dataclass
 class Config:
     """Application configuration."""
@@ -13,6 +17,14 @@ class Config:
 
     # Anthropic
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
+
+    def __post_init__(self) -> None:
+        """Validate required configuration on startup."""
+        if not self.ANTHROPIC_API_KEY:
+            raise ConfigurationError(
+                "ANTHROPIC_API_KEY environment variable is required. "
+                "Set it before starting the application."
+            )
 
     # Models (4.5+ only, no fallback to 3.5 series)
     # See: https://docs.anthropic.com/en/docs/about-claude/models
