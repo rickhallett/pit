@@ -78,6 +78,14 @@ HAL's test requirements:
 - **FE:** Next.js on Vercel
 - **DNS:** Cloudflare (pending)
 
+## Future Work (Post-MVP)
+
+Per Strategist's analysis — not blocking launch, but track for public release:
+
+- **Rate limiting per user** — abuse mitigation (FastAPI middleware or Railway infra)
+- **Content audit logging** — extend `metrics.log_event()` to capture topic content
+- **ToS liability shift** — legal/copy work, plumbing exists
+
 ---
 
 *Update this file when you finish a task or before your context flushes.*
