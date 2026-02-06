@@ -2,11 +2,12 @@
 
 import asyncio
 import json
+import re
 from typing import AsyncGenerator, Optional
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 from pit_api.engine import AgentConfig, BoutConfig, Orchestrator, OrchestratorEvents, ShareGenerator
 from pit_api.models import Bout, Message, Metric
@@ -16,11 +17,53 @@ from pit_api.utils import check_rate_limit, hash_ip
 
 bout_router = APIRouter(prefix="/api", tags=["bout"])
 
+# Validation constants (mirror frontend)
+MAX_TOPIC_CODEPOINTS = 280
+MAX_TOPIC_BYTES = 1024
+
+
+def sanitize_topic(topic: str) -> str:
+    """
+    Sanitize topic input (mirrors frontend sanitization).
+    - Strip script/style tags WITH their contents
+    - Strip remaining HTML tags
+    - Strip control characters
+    - Collapse whitespace
+    """
+    if not topic:
+        return topic
+    # Strip script tags with contents
+    result = re.sub(r"<script\b[^<]*(?:(?!</script>)<[^<]*)*</script>", "", topic, flags=re.IGNORECASE)
+    # Strip style tags with contents
+    result = re.sub(r"<style\b[^<]*(?:(?!</style>)<[^<]*)*</style>", "", result, flags=re.IGNORECASE)
+    # Strip remaining HTML tags
+    result = re.sub(r"<[^>]*>", "", result)
+    # Strip control characters (ASCII 0-31)
+    result = re.sub(r"[\x00-\x1f]", "", result)
+    # Collapse whitespace and trim
+    result = re.sub(r"\s+", " ", result).strip()
+    return result
+
 
 class CreateBoutRequest(BaseModel):
     preset_id: str
-    topic: Optional[str] = None
+    topic: Optional[str] = Field(None, max_length=MAX_TOPIC_BYTES)  # Byte backstop
     model_tier: Optional[str] = "standard"
+
+    @field_validator("topic")
+    @classmethod
+    def validate_topic(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        # Sanitize first
+        sanitized = sanitize_topic(v)
+        # Check codepoint limit
+        if len(sanitized) > MAX_TOPIC_CODEPOINTS:
+            raise ValueError(f"Topic must be {MAX_TOPIC_CODEPOINTS} characters or less")
+        # Check byte limit (defense in depth)
+        if len(sanitized.encode("utf-8")) > MAX_TOPIC_BYTES:
+            raise ValueError("Topic is too long")
+        return sanitized
 
 
 @bout_router.post("/bout", status_code=201)

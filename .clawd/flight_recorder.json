@@ -124,5 +124,17 @@
     "agent": "Architect",
     "action": "Created OpenAPI spec: docs/api/debate-arena.yaml",
     "justification": "API contract definition. Includes: bout CRUD, character endpoints, async status, auth stubs, standardized errors. All architectural decisions documented in-spec with TODOs for future work."
+  },
+  {
+    "timestamp": "2026-02-06T19:49:00Z",
+    "agent": "Architect",
+    "action": "fix: react-hooks/set-state-in-effect lint error in TopicInputModal.tsx",
+    "justification": "Critic flagged lint error blocking PR #37 merge. Moved setState from useEffect to handleClose callback. Same behavior, lint-clean."
+  },
+  {
+    "timestamp": "2026-02-06T19:55:00Z",
+    "agent": "Strategist",
+    "action": "Approved PR #37 after code review verification",
+    "justification": "Verified extraction to fe/lib/topic-validation.ts. Component and tests import from shared module. No duplication. Clean refactor."
   }
 ]
