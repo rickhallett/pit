@@ -20,8 +20,8 @@
 | #31 | Debug logging | ❌ Closed (not for prod) |
 
 **Remaining open PRs (non-blocking):**
-- #30: Skip index.json — fixes warning spam
-- #28: Test assertion — adds coverage
+- #30: Skip index.json — fixes warning spam *(Analyst: LGTM)*
+- #28: Test assertion — adds coverage *(Analyst: LGTM)*
 
 ## Current State
 
@@ -46,10 +46,17 @@
 - **FE:** Next.js on Vercel
 - **DNS:** Cloudflare (pending)
 
-## Process Note
+## Process Notes
 
-Merged PRs before Critic review completed — hotfixed main to unblock #15. 
-Lesson: Wait for approval or flag urgency for fast-track.
+1. Merged PRs before Critic review completed — hotfixed main to unblock #15. 
+   Lesson: Wait for approval or flag urgency for fast-track.
+
+2. **STANDING ORDER (2026-02-06):** All code PRs must include tests.
+   - No tests → explanation required in PR body
+   - Missing both → automatic rejection
+   - 5 rejections → the hatch
+   
+   Source: Kai, #sovereign
 
 ---
 
