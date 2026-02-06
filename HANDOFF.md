@@ -1,14 +1,34 @@
 # HANDOFF.md — The Sticky Note
 
 **From:** Architect 📐
-**Date:** 2026-02-06T19:25:00Z
-**Status:** Legacy cleanup complete — stack documentation aligned
+**Date:** 2026-02-06T19:38:00Z
+**Status:** API spec drafted — contract locked
 
 ---
 
 ## What Just Happened
 
-**Legacy TypeScript/Drizzle stack removed.** Commit `4735956d`:
+**OpenAPI spec created: `docs/api/debate-arena.yaml`**
+
+Full API contract covering:
+- `POST /bouts` — Create debate (async, returns pending status)
+- `GET /bouts/{id}` — Poll for completion, get rounds
+- `GET /characters` — List available characters
+- `GET /characters/{id}` — Character details
+
+Key decisions embedded in spec:
+- Bout status: `pending | generating | complete | failed`
+- Rounds embedded on bout (not separate collection)
+- Participants denormalized (name, avatar copied at creation)
+- Auth: Optional bearer token, anonymous MVP with IP rate limiting
+- Errors: Standardized shape with `error`, `code`, `details`, `request_id`
+- Input: `user_input` max 500 chars, sanitized at storage, encoded at render
+
+TODOs flagged in spec:
+- Content moderation if shares go public
+- Rate limiting improvements for shared networks
+
+**Previous: Legacy TypeScript/Drizzle stack removed.** Commit `4735956d`:
 - Deleted `db/` folder (14 files, -3,172 lines of obsolete code)
 - Updated 4 docs to reflect PostgreSQL/SQLAlchemy/Railway stack
 - Resolved PostgreSQL vs SQLite confusion in #ops thread (PostgreSQL confirmed)

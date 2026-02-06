@@ -118,5 +118,11 @@
     "agent": "Architect",
     "action": "Confirmed tests green, pushed branch, notified Critic for re-review",
     "justification": "22/22 tests passing. PR #37 ready for final review. STOP mode — no merge until Kai returns."
+  },
+  {
+    "timestamp": "2026-02-06T19:38:00Z",
+    "agent": "Architect",
+    "action": "Created OpenAPI spec: docs/api/debate-arena.yaml",
+    "justification": "API contract definition. Includes: bout CRUD, character endpoints, async status, auth stubs, standardized errors. All architectural decisions documented in-spec with TODOs for future work."
   }
 ]

@@ -33,24 +33,23 @@ export function TopicInputModal({
     }
   }, [isOpen]);
 
-  // Reset state when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setTopic("");
-      setError(null);
-    }
-  }, [isOpen]);
+  // Reset state on close (called before onClose prop)
+  const handleClose = useCallback(() => {
+    setTopic("");
+    setError(null);
+    onClose();
+  }, [onClose]);
 
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !isSubmitting) onClose();
+      if (e.key === "Escape" && !isSubmitting) handleClose();
     };
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
       return () => document.removeEventListener("keydown", handleEscape);
     }
-  }, [isOpen, isSubmitting, onClose]);
+  }, [isOpen, isSubmitting, handleClose]);
 
   const handleSubmit = useCallback(() => {
     const sanitized = sanitizeInput(topic);
@@ -91,7 +90,7 @@ export function TopicInputModal({
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-        onClick={isSubmitting ? undefined : onClose}
+        onClick={isSubmitting ? undefined : handleClose}
       />
 
       {/* Modal */}
@@ -105,7 +104,7 @@ export function TopicInputModal({
             <p className="mt-1 text-sm text-zinc-400">{inputHint}</p>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isSubmitting}
             className="text-3xl font-bold text-zinc-500 hover:text-white disabled:opacity-50"
           >
@@ -176,7 +175,7 @@ export function TopicInputModal({
         {/* Actions */}
         <div className="flex gap-3">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isSubmitting}
             className="flex-1 border-4 border-zinc-700 bg-zinc-800 px-6 py-3 text-lg font-black uppercase tracking-tight text-white transition-colors hover:border-zinc-500 hover:bg-zinc-700 disabled:opacity-50"
           >

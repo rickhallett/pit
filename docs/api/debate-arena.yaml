@@ -1,0 +1,506 @@
+openapi: 3.1.0
+info:
+  title: Debate Arena API
+  description: |
+    API for The Pit - a multi-agent AI debate arena.
+    
+    Users create AI personalities. They fight. The crowd decides who survives.
+    Crowdsourced evolutionary prompt engineering disguised as entertainment.
+    
+    ## Authentication
+    
+    MVP is fully public with IP-based rate limiting. The `Authorization` header
+    is optional but stubbed for forward compatibility — when accounts are added,
+    authenticated users will get higher rate limits and access to saved debates.
+    
+    ## Rate Limiting
+    
+    Anonymous requests are rate-limited by IP address. Headers returned:
+    - `X-RateLimit-Limit`: Requests allowed per window
+    - `X-RateLimit-Remaining`: Requests remaining
+    - `X-RateLimit-Reset`: Unix timestamp when window resets
+    
+    <!-- TODO: Rate limiting improvements if we see shared-network complaints
+         IP-only punishes offices/cafes/universities
+         Options: browser fingerprinting, soft tokens, account-gated higher limits
+         See: Strategist flag, 2026-02-06 -->
+  version: 1.0.0
+  contact:
+    name: The Pit Team
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.thepit.app/v1
+    description: Production
+  - url: http://localhost:8000/v1
+    description: Local development
+
+security:
+  - {}  # Anonymous allowed
+  - bearerAuth: []  # Or authenticated
+
+tags:
+  - name: Bouts
+    description: Create and retrieve debate bouts
+  - name: Characters
+    description: Browse available AI characters
+
+paths:
+  /bouts:
+    post:
+      operationId: createBout
+      summary: Create a new debate bout
+      description: |
+        Initiates an AI-generated debate between two characters.
+        
+        Generation is asynchronous — this endpoint returns immediately with
+        status `pending` or `generating`. Poll `GET /bouts/{bout_id}` until
+        status is `complete` or `failed`.
+        
+        The `user_input` field is sanitized on write:
+        - Truncated to 500 characters
+        - Control characters stripped
+        - Whitespace normalized
+        
+        <!-- TODO: Content moderation if share pages go public
+             - slur detection
+             - URL filtering
+             - rate limiting per user
+             See: Strategist's "things that bite later" flag, 2026-02-06 -->
+      tags:
+        - Bouts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBoutRequest'
+            examples:
+              philosophers:
+                summary: Classic philosophy debate
+                value:
+                  character_a_id: "socrates-v1"
+                  character_b_id: "nietzsche-v1"
+                  user_input: "Is morality objective or subjective?"
+                  round_count: 3
+              comedic:
+                summary: Absurd entertainment matchup
+                value:
+                  character_a_id: "gordon-ramsay-v1"
+                  character_b_id: "buddha-v1"
+                  user_input: "Pineapple on pizza: culinary crime or enlightened choice?"
+                  round_count: 5
+      responses:
+        '201':
+          description: Bout created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bout'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_character:
+                  value:
+                    error: "Character not found"
+                    code: "INVALID_INPUT"
+                    details:
+                      field: "character_a_id"
+                      value: "unknown-character"
+                    request_id: "req_abc123"
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Too many requests. Please wait before creating another bout."
+                code: "RATE_LIMITED"
+                details:
+                  retry_after_seconds: 60
+                request_id: "req_abc123"
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+
+  /bouts/{bout_id}:
+    get:
+      operationId: getBout
+      summary: Get bout details
+      description: |
+        Retrieves a bout by ID. Use this to poll for generation completion.
+        
+        **Polling strategy:**
+        - If `status` is `pending` or `generating`, poll again in 2-5 seconds
+        - If `status` is `complete`, the `rounds` array is populated
+        - If `status` is `failed`, check the `error` field
+        
+        For share pages, participant names and avatars are denormalized on the
+        bout record for fast rendering without joins.
+        
+        **Render-time encoding required:** When displaying `user_input` or round
+        content in HTML contexts (including og:description meta tags), apply
+        HTML entity encoding to prevent XSS. Storage sanitization catches garbage;
+        render-time encoding prevents clever garbage we didn't anticipate.
+      tags:
+        - Bouts
+      parameters:
+        - name: bout_id
+          in: path
+          required: true
+          description: Unique bout identifier
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Bout found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bout'
+        '404':
+          description: Bout not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Bout not found"
+                code: "NOT_FOUND"
+                request_id: "req_abc123"
+
+  /characters:
+    get:
+      operationId: listCharacters
+      summary: List available characters
+      description: |
+        Returns all characters available for debates.
+        
+        Characters are AI personalities with distinct voices, perspectives,
+        and debate styles. Some are historical figures, some are archetypes,
+        some are original creations.
+      tags:
+        - Characters
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: Filter by character category
+          schema:
+            type: string
+            enum:
+              - philosopher
+              - scientist
+              - entertainer
+              - historical
+              - fictional
+              - original
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Character list
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - characters
+                  - total
+                properties:
+                  characters:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CharacterSummary'
+                  total:
+                    type: integer
+                    description: Total character count (for pagination)
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+
+  /characters/{character_id}:
+    get:
+      operationId: getCharacter
+      summary: Get character details
+      description: Returns full details for a specific character.
+      tags:
+        - Characters
+      parameters:
+        - name: character_id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "socrates-v1"
+      responses:
+        '200':
+          description: Character found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+        '404':
+          description: Character not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Optional authentication. Anonymous requests are allowed but rate-limited.
+        Authenticated users get higher limits and access to saved debates.
+        
+        Not implemented in v1 — header is stubbed for forward compatibility.
+
+  schemas:
+    CreateBoutRequest:
+      type: object
+      required:
+        - character_a_id
+        - character_b_id
+        - user_input
+      properties:
+        character_a_id:
+          type: string
+          description: ID of the first debater
+          example: "socrates-v1"
+        character_b_id:
+          type: string
+          description: ID of the second debater
+          example: "nietzsche-v1"
+        user_input:
+          type: string
+          description: |
+            The debate topic or prompt (max 500 characters).
+            
+            Sanitized on storage: control characters stripped, whitespace normalized.
+            Must be HTML-encoded at render time for display contexts.
+          maxLength: 500
+          example: "Is morality objective or subjective?"
+        round_count:
+          type: integer
+          description: Number of debate rounds (each character speaks once per round)
+          minimum: 1
+          maximum: 10
+          default: 3
+
+    Bout:
+      type: object
+      required:
+        - id
+        - status
+        - user_input
+        - participants
+        - rounds
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique bout identifier
+        status:
+          type: string
+          enum:
+            - pending
+            - generating
+            - complete
+            - failed
+          description: |
+            Current bout status:
+            - `pending`: Queued for generation
+            - `generating`: LLM generation in progress
+            - `complete`: All rounds generated successfully
+            - `failed`: Generation failed (see `error` field)
+        user_input:
+          type: string
+          description: The original debate topic (sanitized)
+        participants:
+          type: array
+          description: |
+            The two debaters. Names and avatars are denormalized at bout creation
+            for fast share page rendering without joins.
+          minItems: 2
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/BoutParticipant'
+        rounds:
+          type: array
+          description: |
+            Debate rounds in chronological order. Empty until status is `complete`.
+            Embedded on the bout document for atomic reads.
+          items:
+            $ref: '#/components/schemas/Round'
+        round_count:
+          type: integer
+          description: Target number of rounds
+        created_at:
+          type: string
+          format: date-time
+          description: When the bout was created
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When generation completed (null if not complete)
+        error:
+          type: string
+          nullable: true
+          description: Error message if status is `failed`
+
+    BoutParticipant:
+      type: object
+      required:
+        - character_id
+        - name
+        - avatar_url
+      properties:
+        character_id:
+          type: string
+          description: Reference to the character
+        name:
+          type: string
+          description: Character display name (denormalized at bout creation)
+        avatar_url:
+          type: string
+          format: uri
+          description: Character avatar URL (denormalized at bout creation)
+
+    Round:
+      type: object
+      required:
+        - character_id
+        - content
+        - index
+        - generated_at
+      properties:
+        character_id:
+          type: string
+          description: Which character spoke this round
+        content:
+          type: string
+          description: The character's debate argument/response
+        index:
+          type: integer
+          minimum: 0
+          description: |
+            Explicit round ordering (0-indexed). Don't rely on array position —
+            explicit index survives inserts, reorders, and future features like
+            moderator interjections or "expand this point" expansions.
+        generated_at:
+          type: string
+          format: date-time
+          description: When this round was generated
+
+    CharacterSummary:
+      type: object
+      required:
+        - id
+        - name
+        - tagline
+        - avatar_url
+        - category
+      properties:
+        id:
+          type: string
+          example: "socrates-v1"
+        name:
+          type: string
+          example: "Socrates"
+        tagline:
+          type: string
+          description: Short character description
+          example: "The gadfly of Athens"
+        avatar_url:
+          type: string
+          format: uri
+        category:
+          type: string
+          enum:
+            - philosopher
+            - scientist
+            - entertainer
+            - historical
+            - fictional
+            - original
+
+    Character:
+      allOf:
+        - $ref: '#/components/schemas/CharacterSummary'
+        - type: object
+          required:
+            - description
+            - debate_style
+          properties:
+            description:
+              type: string
+              description: Full character biography/background
+            debate_style:
+              type: string
+              description: How this character approaches debates
+              example: "Questions everything, never gives direct answers"
+            created_at:
+              type: string
+              format: date-time
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - code
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          enum:
+            - RATE_LIMITED
+            - INVALID_INPUT
+            - NOT_FOUND
+            - GENERATION_FAILED
+            - INTERNAL_ERROR
+          description: Machine-readable error code
+        details:
+          type: object
+          additionalProperties: true
+          description: Optional field-level errors or extra context
+        request_id:
+          type: string
+          description: Correlation ID for log tracing
+          example: "req_abc123"
