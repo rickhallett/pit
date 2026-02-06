@@ -2,7 +2,8 @@
   "preset_id": "darwin-special",
   "name": "The Darwin Special",
   "description": "Evolution meets evolution denial. Darwin, tech bro, conspiracy theorist, house cat.",
-  "hero": true,
+  "launch_day_hero": true,
+  "featured": true,
   "agents": [
     {
       "id": "darwin",
