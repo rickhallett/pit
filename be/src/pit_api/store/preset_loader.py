@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class PresetAgent:
     """An agent in a preset."""
 
+    id: str
     name: str
     role: str
     system_prompt: str
@@ -85,6 +86,7 @@ class PresetLoader:
 
                 agents.append(
                     PresetAgent(
+                        id=agent_meta["id"],
                         name=agent_meta["name"],
                         role=agent_meta.get("role", ""),
                         system_prompt=system_prompt,

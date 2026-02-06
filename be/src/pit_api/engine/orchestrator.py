@@ -7,7 +7,7 @@ from typing import Callable
 from sqlalchemy.orm import Session
 
 from pit_api.config import config
-from pit_api.models import Bout, Message
+from pit_api.models import Bout, BoutAgent, Message
 
 from .agent_runner import AgentConfig, AgentRunner
 from .token_meter import TokenMeter
@@ -67,7 +67,7 @@ class Orchestrator:
         }.get(tier, config.TURNS_STANDARD)
 
     def create(self, bout_config: BoutConfig) -> Bout:
-        """Create a new bout in pending state."""
+        """Create a new bout in pending state with agent records."""
         bout = Bout(
             preset_id=bout_config.preset_id,
             status="pending",
@@ -75,12 +75,45 @@ class Orchestrator:
             topic=bout_config.topic,
             agent_count=len(bout_config.agents),
             ip_hash=bout_config.ip_hash,
-            extra={"agents": [{"name": a.name, "role": a.role} for a in bout_config.agents]},
         )
         self.db.add(bout)
+        self.db.flush()  # Get bout.id before creating agents
+
+        # Create BoutAgent records for each agent
+        for position, agent in enumerate(bout_config.agents, start=1):
+            bout_agent = BoutAgent(
+                bout_id=bout.id,
+                agent_id=agent.id or agent.name.lower().replace(" ", "-"),
+                agent_name=agent.name,
+                agent_role=agent.role,
+                position=position,
+                team=agent.team,
+            )
+            self.db.add(bout_agent)
+
         self.db.commit()
         self.db.refresh(bout)
         return bout
+
+    def get_agents(self, bout_id: str) -> list[AgentConfig]:
+        """Load agents for a bout from the database."""
+        bout_agents = (
+            self.db.query(BoutAgent)
+            .filter(BoutAgent.bout_id == bout_id)
+            .order_by(BoutAgent.position)
+            .all()
+        )
+        # Note: system_prompt must be loaded from preset store separately
+        return [
+            AgentConfig(
+                id=ba.agent_id,
+                name=ba.agent_name,
+                role=ba.agent_role or "",
+                system_prompt="",  # Loaded by caller from preset store
+                team=ba.team,
+            )
+            for ba in bout_agents
+        ]
 
     def run(self, bout: Bout, agents: list[AgentConfig]) -> Bout:
         """

@@ -15,6 +15,8 @@ class AgentConfig:
     name: str
     role: str
     system_prompt: str
+    id: str | None = None  # Agent ID for persistence
+    team: int | None = None  # Team number for team battles
 
 
 @dataclass
