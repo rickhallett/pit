@@ -34,7 +34,7 @@ export type PresetCategory =
   | 'science'
   | 'politics';
 
-export type PresetComplexity = 'simple' | 'compound' | 'emergent';
+export type PresetComplexity = 'quick' | 'standard' | 'elaborate';
 
 // ============================================================================
 // Agents
