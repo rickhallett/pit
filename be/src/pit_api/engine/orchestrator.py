@@ -151,6 +151,14 @@ class Orchestrator:
             runner = AgentRunner(model=model)
             turn_manager = TurnManager(agents)
             meter = TokenMeter(budget=cost_ceiling)
+
+            # Seed the conversation with initial context (Anthropic requires at least one message)
+            initial_prompt = bout.topic if bout.topic else "Begin."
+            turn_manager.state.conversation.append({
+                "role": "user",
+                "content": initial_prompt,
+            })
+
             for turn_num, agent in turn_manager.turns(max_turns):
                 # Emit turn start event
                 if self.events.on_turn_start:
