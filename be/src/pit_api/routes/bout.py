@@ -158,6 +158,7 @@ async def stream_bout(bout_id: str):
 
         Note: Currently runs the bout synchronously and yields all events at the end.
         TODO: For true real-time streaming, convert Orchestrator to async.
+        CRITIC:DEBT — Sync orchestrator blocks event loop. Priority: post-MVP.
         """
         db = SessionLocal()
         try:

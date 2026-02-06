@@ -1,5 +1,7 @@
 """AgentRunner — wraps Anthropic API for model-agnostic agent execution."""
 
+import time  # CRITIC:PERF — Moved to top-level (was imported inside run())
+
 from dataclasses import dataclass
 from typing import Iterator
 
@@ -59,8 +61,6 @@ class AgentRunner:
         Returns:
             RunResult with the response content and token usage
         """
-        import time
-
         start_time = time.time()
 
         response = self.client.messages.create(
