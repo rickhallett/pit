@@ -11,7 +11,7 @@
 Users create AI personalities. They fight. The crowd decides who survives.
 Crowdsourced evolutionary prompt engineering disguised as entertainment.
 
-**Stack:** Next.js 15, TypeScript, React 19, Turso/Drizzle, Clerk, Stripe.
+**Stack:** Next.js 15 + React 19 (Vercel), FastAPI + SQLAlchemy (Railway/Postgres).
 **Launch:** Darwin Day (February 12, 2026).
 
 ---
