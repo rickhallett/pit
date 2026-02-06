@@ -17,14 +17,22 @@ def list_presets():
                 {
                     "id": p.id,
                     "name": p.name,
+                    "description": p.description,
+                    "category": p.category,
+                    "agent_count": p.agent_count,
+                    "featured": p.featured,
+                    "sort_order": p.sort_order,
+                    "requires_input": p.requires_input,
+                    "input_label": p.input_label,
+                    "agents": [{"name": a.name, "avatar": a.avatar} for a in p.agents],
+                    # Legacy fields for compatibility
                     "premise": p.premise,
                     "tone": p.tone,
-                    "agent_count": len(p.agents),
-                    "featured": p.featured,
                     "user_input": p.user_input,
                 }
                 for p in presets
-            ]
+            ],
+            "categories": preset_loader.get_categories(),
         }
     )
 
@@ -40,10 +48,29 @@ def get_preset(preset_id: str):
         {
             "id": preset.id,
             "name": preset.name,
+            "description": preset.description,
+            "category": preset.category,
+            "agent_count": preset.agent_count,
+            "featured": preset.featured,
+            "sort_order": preset.sort_order,
+            "turn_pattern": preset.turn_pattern,
+            "max_turns": preset.max_turns,
+            "requires_input": preset.requires_input,
+            "input_label": preset.input_label,
+            "launch_day_hero": preset.launch_day_hero,
+            "agents": [
+                {
+                    "id": a.id,
+                    "name": a.name,
+                    "role": a.role,
+                    "avatar": a.avatar,
+                    "color": a.color,
+                }
+                for a in preset.agents
+            ],
+            # Legacy fields for compatibility
             "premise": preset.premise,
             "tone": preset.tone,
-            "agents": [{"name": a.name, "role": a.role} for a in preset.agents],
-            "featured": preset.featured,
             "user_input": preset.user_input,
         }
     )

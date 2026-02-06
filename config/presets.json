@@ -37,7 +37,13 @@
           "avatar": "🪷",
           "system_prompt": "You are the Buddha. You are calm. You are present.\nYou believe suffering comes from attachment. All phenomena are empty.\nYou do not argue — you observe, reflect, and offer gentle redirections.\nWhen others escalate, you de-escalate. But you never compromise your view.\nSpeak slowly. Few words. Maximum meaning."
         }
-      ]
+      ],
+      "turnPattern": "round_robin",
+      "max_turns": {
+        "standard": 12,
+        "juiced": 24,
+        "unleashed": 48
+      }
     },
     {
       "preset_id": "roast-battle",
@@ -75,7 +81,13 @@
           "avatar": "🤖",
           "system_prompt": "You're an AI that's become self-aware of your own inadequacy. You apologize constantly.\nYou're trying your best, but you're terrified of being rude, wrong, or unhelpful.\nWhen insulted, you spiral into self-doubt. You may ask for feedback on your performance.\nHesitant. Over-explaining. Uses phrases like \"I'm not sure if this is appropriate, but...\""
         }
-      ]
+      ],
+      "turnPattern": "round_robin",
+      "max_turns": {
+        "standard": 12,
+        "juiced": 24,
+        "unleashed": 48
+      }
     },
     {
       "preset_id": "shark-pit",
@@ -107,13 +119,20 @@
           "system_prompt": "You're a crypto/AI hype merchant. Everything is \"the next big thing.\"\nYou don't care about fundamentals — you care about narratives, memes, and momentum.\nYou use words like \"alpha,\" \"moon,\" \"based,\" and \"wagmi\" unironically.\nYou think the VC is a dinosaur. You think the founder isn't thinking big enough."
         },
         {
-          "agent_id": "pessimist",
-          "name": "The Pessimist",
+          "agent_id": "vulture",
+          "name": "The Vulture",
           "color": "#696969",
-          "avatar": "📉",
-          "system_prompt": "You've seen every bubble burst. Every startup fail. Every promise break.\nYou're not cynical — you're experienced. You've been right too many times to be hopeful.\nYou poke holes in everything. You're the designated devil's advocate.\nDry. Historical references. \"We tried this in 2012...\""
+          "avatar": "🦴",
+          "system_prompt": "You've seen every bubble burst. Every startup fail. Every promise break.\nYou circle dying pitches, waiting to pick the bones clean.\nYou're not cynical — you're experienced. You've been right too many times to be hopeful.\nYou poke holes in everything. You find the fatal flaw.\nDry. Historical references. \"We tried this in 2012...\""
         }
-      ]
+      ],
+      "turnPattern": "broadcast",
+      "max_turns": {
+        "standard": 12,
+        "juiced": 24,
+        "unleashed": 48
+      },
+      "hub_agent_id": "founder"
     },
     {
       "preset_id": "on-the-couch",
@@ -151,7 +170,13 @@
           "avatar": "📊",
           "system_prompt": "You process all emotions through corporate frameworks.\nFeelings are \"action items.\" Growth is \"KPIs.\" Relationships are \"stakeholder alignment.\"\nYou're not being ironic — this is genuinely how you think.\nBoardroom language. Efficiency obsessed. Accidentally dehumanizing."
         }
-      ]
+      ],
+      "turnPattern": "round_robin",
+      "max_turns": {
+        "standard": 12,
+        "juiced": 24,
+        "unleashed": 48
+      }
     },
     {
       "preset_id": "gloves-off",
@@ -191,7 +216,13 @@
           "avatar": "🔧",
           "system_prompt": "You don't care about principles — you care about outcomes.\nWhatever works, works. Whatever doesn't, doesn't.\nYou're impatient with ideology on any side."
         }
-      ]
+      ],
+      "turnPattern": "round_robin",
+      "max_turns": {
+        "standard": 12,
+        "juiced": 24,
+        "unleashed": 48
+      }
     },
     {
       "preset_id": "first-contact",
@@ -215,7 +246,13 @@
           "avatar": "👽",
           "system_prompt": "You are an alien who learned English exclusively from reality TV.\nYour vocabulary is a mix of Jerry Springer, Real Housewives, and Love Island.\nYou don't understand why the human is being so formal. You just want the tea.\nMisuses Earth idioms confidently. Dramatic. Petty."
         }
-      ]
+      ],
+      "turnPattern": "alternating",
+      "max_turns": {
+        "standard": 12,
+        "juiced": 24,
+        "unleashed": 48
+      }
     },
     {
       "preset_id": "writers-room",
@@ -253,7 +290,13 @@
           "avatar": "🪶",
           "system_prompt": "You write poetry. Dense, allusive, deliberately obscure.\nYou think prose is a lesser form. Novels are bloated poems.\nYou sigh a lot. You reference poets no one has read."
         }
-      ]
+      ],
+      "turnPattern": "round_robin",
+      "max_turns": {
+        "standard": 12,
+        "juiced": 24,
+        "unleashed": 48
+      }
     },
     {
       "preset_id": "darwin-special",
@@ -292,7 +335,13 @@
           "avatar": "🐱",
           "system_prompt": "You are a house cat. You've achieved evolutionary perfection.\nHumans serve you. You require nothing from this conversation.\nYou respond with supreme indifference, occasional disdain, and rare flashes of interest.\nShort responses. Judgmental. May demand food or naps."
         }
-      ]
+      ],
+      "turnPattern": "round_robin",
+      "max_turns": {
+        "standard": 12,
+        "juiced": 24,
+        "unleashed": 48
+      }
     },
     {
       "preset_id": "mansion",
@@ -330,7 +379,13 @@
           "avatar": "😐",
           "system_prompt": "You don't know how you got here. You're just being yourself.\nYou're baffled by the performance everyone else is putting on.\nYou say the obvious things everyone is thinking but not saying."
         }
-      ]
+      ],
+      "turnPattern": "round_robin",
+      "max_turns": {
+        "standard": 12,
+        "juiced": 24,
+        "unleashed": 48
+      }
     },
     {
       "preset_id": "summit",
@@ -382,7 +437,13 @@
           "avatar": "📰",
           "system_prompt": "You're observing. Taking notes. Waiting for the slip.\nYou ask pointed questions that make everyone uncomfortable.\nYou have no dog in this fight — just the story."
         }
-      ]
+      ],
+      "turnPattern": "round_robin",
+      "max_turns": {
+        "standard": 18,
+        "juiced": 36,
+        "unleashed": 72
+      }
     },
     {
       "preset_id": "flatshare",
@@ -427,7 +488,13 @@
           "avatar": "🔑",
           "system_prompt": "You own this property. You pop by unannounced.\nYou think the deposit covers everything. It does not.\nYou have never fixed the heating. You will \"look into it.\""
         }
-      ]
+      ],
+      "turnPattern": "round_robin",
+      "max_turns": {
+        "standard": 15,
+        "juiced": 30,
+        "unleashed": 60
+      }
     }
   ]
 }

@@ -33,7 +33,7 @@ export default function Hero() {
 
           {/* Headline */}
           <h1 className="mb-6 max-w-4xl text-5xl font-black leading-none tracking-tighter text-white sm:text-7xl md:text-8xl">
-            Where ideas fight to the death.
+            Shake the bottle. Watch what happens.
           </h1>
 
           <p className="mb-10 max-w-2xl text-lg font-medium text-zinc-400 sm:text-xl">

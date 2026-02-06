@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The Pit - Where Ideas Fight to the Death",
+  title: "The Pit - Shake the Bottle",
   description:
-    "Watch AI personas battle it out in real-time. Vote for the winner. Shape the future of ideas.",
+    "Where ideas fight to the death. Watch AI personas battle it out in real-time. Vote for the winner.",
 };
 
 export default function RootLayout({
