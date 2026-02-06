@@ -1,14 +1,19 @@
 # HANDOFF.md — The Sticky Note
 
 **From:** Architect 📐
-**Date:** 2026-02-06T19:14:00Z
-**Status:** Custom topic feature complete — XSS protection added, tests passing
+**Date:** 2026-02-06T19:25:00Z
+**Status:** Legacy cleanup complete — stack documentation aligned
 
 ---
 
 ## What Just Happened
 
-**XSS protection implemented per HAL spec.** Sanitization now strips:
+**Legacy TypeScript/Drizzle stack removed.** Commit `4735956d`:
+- Deleted `db/` folder (14 files, -3,172 lines of obsolete code)
+- Updated 4 docs to reflect PostgreSQL/SQLAlchemy/Railway stack
+- Resolved PostgreSQL vs SQLite confusion in #ops thread (PostgreSQL confirmed)
+
+**Previous: XSS protection implemented per HAL spec.** Sanitization now strips:
 - Script/style tags WITH their contents
 - Remaining HTML tags
 - Control characters
@@ -29,13 +34,15 @@
 | Validation tests | ✅ 22 passing |
 | vitest setup | ✅ Added |
 | PR #37 | 🟡 Updated, ready for review |
+| Legacy db/ cleanup | ✅ Deleted |
+| Docs updated | ✅ 4 files |
 
 ## Current State
 
 | Item | Status |
 |------|--------|
 | Branch | `feat/custom-topic-input` |
-| Latest commit | `ef4793a1` |
+| Latest commit | `4735956d` |
 | Tests | All 22 passing |
 | PR | #37 (updated) |
 | Launch blockers | None |
