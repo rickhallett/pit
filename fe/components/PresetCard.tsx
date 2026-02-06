@@ -2,7 +2,7 @@ interface PresetCardProps {
   name: string;
   description: string;
   stance: string;
-  color: "accent" | "accent-secondary";
+  index: number;
   selected?: boolean;
   onClick?: () => void;
 }
@@ -11,58 +11,92 @@ export default function PresetCard({
   name,
   description,
   stance,
-  color,
+  index,
   selected = false,
   onClick,
 }: PresetCardProps) {
-  const colorClasses = {
-    accent: "border-accent bg-accent/10 hover:bg-accent/20",
-    "accent-secondary":
-      "border-accent-secondary bg-accent-secondary/10 hover:bg-accent-secondary/20",
-  };
-
-  const selectedClasses = {
-    accent: "bg-accent/30",
-    "accent-secondary": "bg-accent-secondary/30",
-  };
+  // Alternate styling based on index for asymmetry
+  const isEven = index % 2 === 0;
+  const isFirst = index === 0;
+  const isLast = index === 3; // Assuming 4 presets for now
 
   return (
     <button
       onClick={onClick}
-      className={`group w-full border-4 p-6 text-left transition-all ${
-        selected
-          ? `${selectedClasses[color]} scale-105`
-          : colorClasses[color]
-      }`}
+      className={`group relative w-full p-8 text-left transition-all ${
+        selected ? "bg-white/10" : "bg-transparent hover:bg-white/5"
+      } ${isEven ? "md:pr-16" : "md:pl-16"}`}
     >
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-2xl font-black tracking-tight text-white">
+      {/* Partial border — brutalist asymmetry */}
+      <div
+        className={`absolute ${
+          isEven
+            ? "left-0 top-0 h-full w-1 bg-accent"
+            : "right-0 top-0 h-full w-1 bg-accent-secondary"
+        }`}
+      />
+      <div
+        className={`absolute ${
+          isFirst
+            ? "left-0 top-0 h-1 w-24 bg-accent"
+            : isLast
+              ? "bottom-0 right-0 h-1 w-24 bg-accent-secondary"
+              : isEven
+                ? "left-0 top-0 h-1 w-16 bg-white/30"
+                : "right-0 bottom-0 h-1 w-16 bg-white/30"
+        }`}
+      />
+
+      <div className={`flex flex-col ${isEven ? "" : "md:items-end md:text-right"}`}>
+        {/* Index number */}
+        <div
+          className={`mb-4 text-6xl font-black leading-none ${
+            isEven ? "text-accent" : "text-accent-secondary"
+          } ${selected ? "opacity-100" : "opacity-40 group-hover:opacity-70"}`}
+        >
+          {String(index + 1).padStart(2, "0")}
+        </div>
+
+        <h3 className="mb-2 text-2xl font-black uppercase tracking-tight text-white">
           {name}
         </h3>
+
+        <p
+          className={`mb-4 text-sm font-bold uppercase tracking-widest ${
+            isEven ? "text-accent" : "text-accent-secondary"
+          }`}
+        >
+          {stance}
+        </p>
+
+        <p className="max-w-md text-base leading-relaxed text-zinc-400">
+          {description}
+        </p>
+
+        {/* Selection indicator */}
         {selected && (
-          <div
-            className={`h-6 w-6 ${
-              color === "accent" ? "bg-accent" : "bg-accent-secondary"
-            }`}
-          ></div>
+          <div className="mt-6 flex items-center gap-3">
+            <div
+              className={`h-3 w-3 ${isEven ? "bg-accent" : "bg-accent-secondary"}`}
+            />
+            <span className="text-xs font-black uppercase tracking-widest text-white">
+              Selected
+            </span>
+          </div>
         )}
       </div>
 
-      <p className="mb-4 text-sm font-bold uppercase tracking-wider text-zinc-400">
-        {stance}
-      </p>
-
-      <p className="text-base leading-relaxed text-zinc-300">{description}</p>
-
-      <div className="mt-6 flex items-center gap-2">
+      {/* Geometric accent on hover */}
+      <div
+        className={`absolute opacity-0 transition-opacity group-hover:opacity-100 ${
+          isEven ? "right-8 top-8" : "left-8 bottom-8"
+        }`}
+      >
         <div
-          className={`h-2 w-2 ${
-            color === "accent" ? "bg-accent" : "bg-accent-secondary"
+          className={`h-8 w-8 rotate-45 border-2 ${
+            isEven ? "border-accent" : "border-accent-secondary"
           }`}
-        ></div>
-        <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
-          Ready to fight
-        </span>
+        />
       </div>
     </button>
   );

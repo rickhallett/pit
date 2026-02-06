@@ -27,7 +27,6 @@ export default function Home() {
       stance: "Progress Above All",
       description:
         "Believes in the power of innovation, risk-taking, and forward momentum. Change is opportunity.",
-      color: "accent" as const,
     },
     {
       id: "skeptic",
@@ -35,7 +34,6 @@ export default function Home() {
       stance: "Question Everything",
       description:
         "Champions critical thinking, evidence-based reasoning, and cautious evaluation before action.",
-      color: "accent-secondary" as const,
     },
     {
       id: "idealist",
@@ -43,7 +41,6 @@ export default function Home() {
       stance: "Principles First",
       description:
         "Driven by values, ethics, and the vision of what should be. Refuses to compromise on core beliefs.",
-      color: "accent" as const,
     },
     {
       id: "pragmatist",
@@ -51,7 +48,6 @@ export default function Home() {
       stance: "Results Matter",
       description:
         "Focused on what works in practice. Values outcomes over ideologies and adapts to reality.",
-      color: "accent-secondary" as const,
     },
   ];
 
@@ -64,21 +60,33 @@ export default function Home() {
       {/* Fighter Selection */}
       <section className="border-b-4 border-white bg-black py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-4 text-center text-4xl font-black tracking-tighter text-white sm:text-5xl">
-            Choose Your Fighters
-          </h2>
-          <p className="mb-12 text-center text-lg text-zinc-400">
-            Select two personas to battle it out
-          </p>
+          <div className="mb-16 flex items-end justify-between">
+            <div>
+              <h2 className="text-4xl font-black uppercase tracking-tighter text-white sm:text-5xl md:text-6xl">
+                Choose Your
+                <br />
+                Fighters
+              </h2>
+            </div>
+            <div className="hidden text-right md:block">
+              <p className="text-sm font-bold uppercase tracking-widest text-zinc-500">
+                Select two
+              </p>
+              <p className="text-sm font-bold uppercase tracking-widest text-zinc-500">
+                to battle
+              </p>
+            </div>
+          </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {presets.map((preset) => (
+          {/* Staggered layout — not a uniform grid */}
+          <div className="space-y-0 divide-y divide-white/10">
+            {presets.map((preset, index) => (
               <PresetCard
                 key={preset.id}
                 name={preset.name}
                 description={preset.description}
                 stance={preset.stance}
-                color={preset.color}
+                index={index}
                 selected={
                   selectedFighters.fighter1 === preset.id ||
                   selectedFighters.fighter2 === preset.id
