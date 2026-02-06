@@ -1,5 +1,8 @@
 /**
  * Preset Loader — Fetch, parse, and validate preset configurations
+ * 
+ * NOTE: The app primarily uses lib/api.ts for preset fetching.
+ * This module provides additional utilities for filtering and validation.
  */
 
 import {
@@ -9,6 +12,7 @@ import {
   parsePresetIndex,
   isValidPreset,
 } from '@/types';
+import { getPresets } from './api';
 
 // ============================================================================
 // Loader
@@ -17,7 +21,7 @@ import {
 let cachedPresets: PresetConfig[] | null = null;
 
 /**
- * Load all presets from the API or static JSON
+ * Load all presets from the backend API
  * Caches result for subsequent calls
  */
 export async function loadPresets(): Promise<PresetConfig[]> {
@@ -25,15 +29,14 @@ export async function loadPresets(): Promise<PresetConfig[]> {
     return cachedPresets;
   }
 
-  // In development, load from static JSON
-  // In production, this would hit the API
-  const response = await fetch('/api/presets');
+  // Fetch from backend API (uses NEXT_PUBLIC_API_URL)
+  const response = await getPresets();
   
-  if (!response.ok) {
-    throw new Error(`Failed to load presets: ${response.status}`);
-  }
-
-  const raw: PresetIndex = await response.json();
+  // Transform API response to PresetConfig format
+  const raw: PresetIndex = { 
+    version: '1.0.0',
+    presets: response.presets as unknown as PresetIndex['presets'] 
+  };
   const presets = parsePresetIndex(raw);
 
   // Validate all presets
