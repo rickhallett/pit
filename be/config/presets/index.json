@@ -36,7 +36,7 @@
       "file": "gloves-off.json",
       "hero": false,
       "agents": 4,
-      "requires_topic": true
+      "requires_input": true
     },
     {
       "id": "first-contact",
