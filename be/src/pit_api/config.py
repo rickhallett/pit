@@ -16,6 +16,9 @@ class Config:
     FROM_EMAIL: str = os.getenv("FROM_EMAIL", "The Pit <noreply@thepit.cloud>")
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://thepit.cloud")
 
+    # JWT
+    JWT_SECRET: str = os.getenv("JWT_SECRET", "CHANGE_ME_IN_PRODUCTION")
+
     # Anthropic
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
 

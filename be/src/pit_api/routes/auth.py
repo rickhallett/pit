@@ -6,10 +6,12 @@ from datetime import datetime, timezone
 from flask import Blueprint, jsonify, request
 
 from pit_api.config import config
+from pit_api.middleware.auth import require_auth
 from pit_api.models.base import SessionLocal
 from pit_api.models.magic_link import MagicLink
 from pit_api.models.user import AcquisitionSource, User
 from pit_api.services.email import email_service
+from pit_api.services.jwt import create_session_token
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -122,8 +124,8 @@ def verify_magic_link():
 
         db.commit()
 
-        # Generate session token (TODO: implement proper JWT/session management)
-        session_token = secrets.token_urlsafe(32)
+        # Generate JWT session token (24h expiry, stateless)
+        session_token = create_session_token(user.id, user.email)
 
         return jsonify({
             "user": {
@@ -132,7 +134,8 @@ def verify_magic_link():
                 "display_name": user.display_name,
                 "tier": user.tier.value,
             },
-            "session_token": session_token,  # TODO: persist and validate
+            "token": session_token,
+            "expires_in": 86400,  # 24 hours in seconds
         }), 200
 
     finally:
@@ -160,3 +163,29 @@ def _parse_uuid(value: str | None):
         return UUID(value)
     except ValueError:
         return None
+
+
+@auth_bp.route("/me", methods=["GET"])
+@require_auth
+def get_current_user():
+    """Get the current authenticated user.
+
+    Headers:
+        Authorization: Bearer <token>
+
+    Returns:
+        200 with user data
+        401 if not authenticated
+    """
+    from flask import g
+
+    user = g.current_user
+    return jsonify({
+        "user": {
+            "id": str(user.id),
+            "email": user.email,
+            "display_name": user.display_name,
+            "tier": user.tier.value,
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+        }
+    }), 200
