@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 
 export default function Countdown() {
-  // Launch date: Feb 12, 2025
-  const launchDate = new Date("2025-02-12T00:00:00Z");
+  // Launch date: Feb 12, 2026 (Darwin Day)
+  const launchDate = new Date("2026-02-12T00:00:00Z");
 
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -48,7 +48,7 @@ export default function Countdown() {
           ARENA OPENS IN
         </h2>
         <p className="mb-12 text-center text-lg font-bold text-black/80">
-          February 12, 2025
+          February 12, 2026
         </p>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
