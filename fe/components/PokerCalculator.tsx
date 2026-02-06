@@ -1,3 +1,15 @@
+{/**
+ * ARCHIVE: poker-tools
+ * Created: 2026-02-06
+ * Author: Unknown (discovered during The Poker Incident)
+ * Status: Orphaned — no MANIFEST.md entry, no project ownership
+ * Quality: Technically sound per Analyst review
+ * Disposition: Archived for posterity per Kai's decision
+ * 
+ * This file was removed from pit main branch.
+ * If reactivating, create proper project ownership first.
+ */}
+
 "use client";
 
 import { useState } from "react";
