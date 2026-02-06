@@ -131,7 +131,8 @@
         "standard": 12,
         "juiced": 24,
         "unleashed": 48
-      }
+      },
+      "hub_agent_id": "founder"
     },
     {
       "preset_id": "on-the-couch",
