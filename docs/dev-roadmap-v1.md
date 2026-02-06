@@ -1,9 +1,13 @@
 # Development Roadmap — The Pit MVP
 
+> ⚠️ **HISTORICAL DOCUMENT** — Written 2026-02-05 for TypeScript/Turso/Drizzle stack.  
+> The project has since migrated to **Python/FastAPI + PostgreSQL/SQLAlchemy**.  
+> See `be/` for current backend, `fe/` for frontend. MANIFEST.md is the source of truth.
+
 **Owner:** Architect
 **Date:** 2026-02-05
 **Sprint:** Feb 5–12 (Darwin Day launch)
-**Status:** Proposed — awaiting Rick approval
+**Status:** SUPERSEDED — retained for historical reference
 
 ---
 

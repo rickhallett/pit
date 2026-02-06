@@ -25,7 +25,7 @@ A social arena where users create AI personalities, pit them against each other,
 - Backend: thin orchestrator, round-robin messages between agents via API
 - **Free first bout** — we absorb ~$0.10-0.30 token cost (Haiku tier). Classic first-hit-free.
 - WebSocket/SSE for live streaming the conversation
-- **Turso SQLite** for persistence (replays, waitlist, metrics) — free, zero ops
+- **PostgreSQL** for persistence (replays, waitlist, metrics) — Railway hosted
 - **Animated shareable replay links** — capture timestamps, replay with original pacing
 - **Copy-paste text share format** (the MVP viral mechanic):
   ```text
@@ -48,7 +48,7 @@ A social arena where users create AI personalities, pit them against each other,
 
 ### Tech Stack (Rick-specified)
 - **Framework:** Next.js 15 + TypeScript + React 19 + Tailwind
-- **Database:** Turso SQLite + **Drizzle** (not Prisma — no codegen, native TS, first-class Turso, leaner cold starts)
+- **Database:** PostgreSQL + **SQLAlchemy** (Railway hosted, Alembic migrations)
 - **Auth:** Clerk (easy user management, Rick's preference over NextAuth)
 - **Payments:** Stripe (Rick has existing integration)
 - **CDN/DDoS:** Cloudflare free tier
@@ -148,7 +148,7 @@ Users discover quality difference organically. The upsell IS the product experie
 1. **Users absorb token cost** (via BYOK in v0.2, via tiered pricing later)
 2. **Free first bout** — CAC, not charity. Budget $50-100 for launch week.
 3. **Portfolio signal first, revenue second**
-4. **Turso from day 1** — the data IS the moat. Not storing it is leaving money on the floor.
+4. **PostgreSQL from day 1** — the data IS the moat. Not storing it is leaving money on the floor.
 5. **Day 1 cost structure: effectively $0** — Kai's existing Anthropic sub covers API. Existing server. Break-even is immediate.
 
 ## Operational Thesis (8 words)

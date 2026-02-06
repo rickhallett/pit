@@ -6,7 +6,7 @@
 
 - Docker & Docker Compose
 - Anthropic API key
-- (Optional) Turso database for production
+- PostgreSQL database (Railway for production, Docker for local)
 
 ### Local Development
 
@@ -72,9 +72,9 @@ postgresql://pit:pit@localhost:5432/pit
 postgresql://pit:pit@postgres:5432/pit
 ```
 
-**Turso (production):**
+**Railway (production):**
 ```
-libsql://your-db.turso.io?authToken=your-token
+postgresql://user:password@host.railway.app:5432/railway
 ```
 
 ### Optional
@@ -102,40 +102,37 @@ libsql://your-db.turso.io?authToken=your-token
         ▼                   ▼
 ┌───────────────┐   ┌───────────────┐
 │   Frontend    │   │     API       │
-│   (Next.js)   │   │   (Flask)     │
-│   Port 3000   │   │   Port 5000   │
+│   (Next.js)   │   │  (FastAPI)    │
+│   Port 3000   │   │   Port 8000   │
 └───────────────┘   └───────┬───────┘
                             │
                             ▼
                     ┌───────────────┐
                     │   Database    │
-                    │    (Turso)    │
+                    │ (PostgreSQL)  │
                     └───────────────┘
 ```
 
 ---
 
-## Turso Setup
+## Railway Setup (Production)
 
-1. **Install Turso CLI:**
+1. **Create Railway project:**
+   - Go to [railway.app](https://railway.app)
+   - Create new project → Add PostgreSQL
+
+2. **Get connection URL:**
+   - Click on PostgreSQL service → Variables tab
+   - Copy `DATABASE_URL`
+
+3. **Deploy backend:**
+   - Connect your GitHub repo
+   - Set root directory to `be/`
+   - Add environment variables: `ANTHROPIC_API_KEY`, `DATABASE_URL`
+
+4. **Run migrations:**
    ```bash
-   curl -sSfL https://get.tur.so/install.sh | bash
-   ```
-
-2. **Create database:**
-   ```bash
-   turso db create pit
-   ```
-
-3. **Get connection URL:**
-   ```bash
-   turso db show pit --url
-   turso db tokens create pit
-   ```
-
-4. **Update .env:**
-   ```
-   DATABASE_URL=libsql://pit-xxx.turso.io?authToken=xxx
+   railway run alembic upgrade head
    ```
 
 ---
@@ -193,7 +190,7 @@ docker compose -f docker-compose.prod.yml ps
 ### Database connection issues
 
 1. For local PostgreSQL: ensure `--profile postgres` is used
-2. For Turso: verify auth token hasn't expired
+2. For Railway: verify connection credentials are current
 3. Run migrations: `cd be && alembic upgrade head`
 
 ---
