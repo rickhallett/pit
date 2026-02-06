@@ -77,6 +77,9 @@ class PresetLoader:
             return presets
 
         for preset_file in self.presets_dir.glob("*.json"):
+            # Skip index/registry files
+            if preset_file.name in ("index.json", "_index.json"):
+                continue
             preset = self._load_preset_file(preset_file)
             if preset:
                 presets.append(preset)
