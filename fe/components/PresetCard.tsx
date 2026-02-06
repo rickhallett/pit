@@ -5,6 +5,7 @@ interface PresetCardProps {
   index: number;
   selected?: boolean;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
 export default function PresetCard({
@@ -14,6 +15,7 @@ export default function PresetCard({
   index,
   selected = false,
   onClick,
+  disabled = false,
 }: PresetCardProps) {
   // Alternate styling based on index for asymmetry
   const isEven = index % 2 === 0;
@@ -23,9 +25,10 @@ export default function PresetCard({
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={`group relative w-full p-8 text-left transition-all ${
         selected ? "bg-white/10" : "bg-transparent hover:bg-white/5"
-      } ${isEven ? "md:pr-16" : "md:pl-16"}`}
+      } ${isEven ? "md:pr-16" : "md:pl-16"} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       {/* Partial border — brutalist asymmetry */}
       <div
