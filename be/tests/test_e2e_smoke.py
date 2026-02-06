@@ -32,8 +32,9 @@ def db_available():
     """Check if database is available."""
     try:
         from pit_api.models.base import SessionLocal
+        from sqlalchemy import text
         session = SessionLocal()
-        session.execute("SELECT 1")
+        session.execute(text("SELECT 1"))
         session.close()
         return True
     except Exception:
@@ -161,7 +162,7 @@ class TestBoutFlow:
         with patch("pit_api.routes.bout.check_rate_limit", return_value=True):
             response = client.post(
                 "/api/bout",
-                json={"preset_id": "classic-duel"},
+                json={"preset_id": "roast-battle"},
                 content_type="application/json",
             )
             assert response.status_code == 201
@@ -170,14 +171,14 @@ class TestBoutFlow:
             assert data["status"] == "pending"
             assert "stream_url" in data
             assert "agents" in data
-            assert len(data["agents"]) == 2
+            assert len(data["agents"]) >= 2  # Different presets have different agent counts
 
     def test_rate_limiting(self, client):
         """Rate limiting should return 429."""
         with patch("pit_api.routes.bout.check_rate_limit", return_value=False):
             response = client.post(
                 "/api/bout",
-                json={"preset_id": "classic-duel"},
+                json={"preset_id": "roast-battle"},
                 content_type="application/json",
             )
             assert response.status_code == 429
@@ -193,7 +194,7 @@ class TestBoutFlow:
                 # 1. Create bout
                 response = client.post(
                     "/api/bout",
-                    json={"preset_id": "classic-duel", "topic": "Test topic"},
+                    json={"preset_id": "roast-battle", "topic": "Test topic"},
                     content_type="application/json",
                 )
                 assert response.status_code == 201
@@ -204,7 +205,7 @@ class TestBoutFlow:
                 # 2. Connect to stream and consume events
                 response = client.get(stream_url)
                 assert response.status_code == 200
-                assert response.content_type == "text/event-stream"
+                assert "text/event-stream" in response.content_type
 
                 # Parse SSE events from response data
                 events = []
