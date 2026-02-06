@@ -18,12 +18,17 @@ const MAX_LENGTH_BYTES = 1024;
 
 /**
  * Sanitize user input:
+ * - Strip script/style tags WITH their contents (XSS prevention)
+ * - Strip remaining HTML tags
  * - Strip leading/trailing whitespace
  * - Collapse consecutive whitespace to single space
  * - Remove control characters (ASCII 0-31)
  */
 function sanitizeInput(input: string): string {
   return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "") // Strip script tags + contents
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "") // Strip style tags + contents
+    .replace(/<[^>]*>/g, "") // Strip remaining HTML tags
     .trim()
     .replace(/[\x00-\x1F]/g, "") // Strip control chars
     .replace(/\s+/g, " "); // Collapse whitespace

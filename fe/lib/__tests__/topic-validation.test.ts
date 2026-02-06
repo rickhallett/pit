@@ -13,12 +13,17 @@ const MAX_LENGTH_BYTES = 1024;
 
 /**
  * Sanitize user input:
+ * - Strip script/style tags WITH their contents (XSS prevention)
+ * - Strip remaining HTML tags
  * - Strip leading/trailing whitespace
  * - Collapse consecutive whitespace to single space
  * - Remove control characters (ASCII 0-31)
  */
 function sanitizeInput(input: string): string {
   return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "") // Strip script tags + contents
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "") // Strip style tags + contents
+    .replace(/<[^>]*>/g, "") // Strip remaining HTML tags
     .trim()
     .replace(/[\x00-\x1F]/g, "") // Strip control chars
     .replace(/\s+/g, " "); // Collapse whitespace
@@ -75,6 +80,31 @@ describe('sanitizeInput', () => {
   it('preserves emoji', () => {
     expect(sanitizeInput('🔥 Hot take 🔥')).toBe('🔥 Hot take 🔥');
   });
+
+  // XSS prevention tests (HAL spec)
+  it('strips HTML script tags', () => {
+    expect(sanitizeInput("<script>alert('xss')</script>test")).toBe('test');
+  });
+
+  it('strips nested HTML with script contents removed', () => {
+    // Script content removed entirely, then remaining tags stripped
+    expect(sanitizeInput('<div><script>bad</script></div>content')).toBe('content');
+  });
+
+  it('strips event handler attributes (tag removal)', () => {
+    // The tag is removed; attribute content becomes harmless text if any remains
+    expect(sanitizeInput('before<img src=x onerror=alert(1)>after')).toBe('beforeafter');
+  });
+
+  it('strips self-closing tags', () => {
+    expect(sanitizeInput('hello<br/>world')).toBe('helloworld');
+    expect(sanitizeInput('test<hr />end')).toBe('testend');
+  });
+
+  it('preserves angle brackets not part of tags', () => {
+    // Mathematical expressions should be preserved
+    expect(sanitizeInput('x > 5 and y < 10')).toBe('x > 5 and y < 10');
+  });
 });
 
 describe('validateTopic', () => {
@@ -94,6 +124,12 @@ describe('validateTopic', () => {
     const result = validateTopic('Valid topic');
     expect(result.isValid).toBe(true);
     expect(result.error).toBeUndefined();
+  });
+
+  // Boundary cases (HAL spec: 0, 1, 280, 281)
+  it('accepts single character topic (boundary: 1 char)', () => {
+    const result = validateTopic('A');
+    expect(result.isValid).toBe(true);
   });
 
   it('accepts padded topic (after sanitization)', () => {
