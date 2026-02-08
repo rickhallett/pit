@@ -10,6 +10,7 @@ import {
   PresetCard,
   BattleArena,
   ShareCard,
+  TopicInputModal,
   WaitlistForm,
 } from "@/components";
 import { getPresets, createBout, Preset, ApiError } from "@/lib/api";
@@ -22,6 +23,10 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [creatingBout, setCreatingBout] = useState(false);
+  
+  // Topic input modal state
+  const [topicModalOpen, setTopicModalOpen] = useState(false);
+  const [pendingPreset, setPendingPreset] = useState<Preset | null>(null);
 
   // Fetch presets on mount
   useEffect(() => {
@@ -73,15 +78,34 @@ export default function Home() {
     loadPresets();
   }, []);
 
-  // Handle bout creation when a preset is selected
-  const handleStartBout = async (presetId: string) => {
+  // Handle preset selection - check if input is required
+  const handlePresetSelect = (presetId: string) => {
+    const preset = presets.find(p => p.id === presetId);
+    if (!preset) return;
+
+    if (preset.requires_input) {
+      // Show topic input modal
+      setPendingPreset(preset);
+      setTopicModalOpen(true);
+    } else {
+      // Start bout directly
+      handleStartBout(presetId);
+    }
+  };
+
+  // Handle bout creation (with optional topic)
+  const handleStartBout = async (presetId: string, topic?: string) => {
     try {
       setCreatingBout(true);
       setSelectedPreset(presetId);
       
-      const response = await createBout(presetId);
+      const response = await createBout(presetId, topic);
       
       console.log("Bout created:", response);
+      
+      // Close modal if open
+      setTopicModalOpen(false);
+      setPendingPreset(null);
       
       // Navigate to bout view
       router.push(`/bout/${response.bout_id}`);
@@ -95,6 +119,21 @@ export default function Home() {
       setSelectedPreset(null);
     } finally {
       setCreatingBout(false);
+    }
+  };
+
+  // Handle topic submission from modal
+  const handleTopicSubmit = (topic: string) => {
+    if (pendingPreset) {
+      handleStartBout(pendingPreset.id, topic);
+    }
+  };
+
+  // Handle modal close
+  const handleTopicModalClose = () => {
+    if (!creatingBout) {
+      setTopicModalOpen(false);
+      setPendingPreset(null);
     }
   };
 
@@ -187,7 +226,7 @@ export default function Home() {
                         ))}
                       </div>
                       <button
-                        onClick={() => handleStartBout(heroPreset.id)}
+                        onClick={() => handlePresetSelect(heroPreset.id)}
                         disabled={creatingBout}
                         className="mt-6 border-4 border-yellow-500 bg-yellow-500 px-8 py-3 text-lg font-black uppercase tracking-tight text-black transition-colors hover:bg-yellow-400 disabled:opacity-50"
                       >
@@ -215,7 +254,7 @@ export default function Home() {
                     stance={preset.premise || preset.description}
                     index={index}
                     selected={selectedPreset === preset.id}
-                    onClick={() => handleStartBout(preset.id)}
+                    onClick={() => handlePresetSelect(preset.id)}
                     disabled={creatingBout}
                   />
                 ))}
@@ -270,6 +309,17 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Topic Input Modal */}
+      <TopicInputModal
+        isOpen={topicModalOpen}
+        onClose={handleTopicModalClose}
+        onSubmit={handleTopicSubmit}
+        presetName={pendingPreset?.name ?? ""}
+        inputHint={pendingPreset?.input_label}
+        inputExamples={pendingPreset?.input_examples}
+        isSubmitting={creatingBout}
+      />
     </Layout>
   );
 }

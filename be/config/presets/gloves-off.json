@@ -3,7 +3,12 @@
   "name": "Gloves Off",
   "description": "User-supplied topic. Four debaters with distinct styles.",
   "requires_input": true,
-  "input_label": "Enter a topic for debate",
+  "input_label": "What should they debate?",
+  "input_examples": [
+    "Is AI consciousness possible?",
+    "Pineapple on pizza",
+    "Remote work vs office"
+  ],
   "agents": [
     {
       "id": "absolutist",

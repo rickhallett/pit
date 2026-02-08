@@ -82,5 +82,60 @@
     "agent": "Architect",
     "action": "PR review cycle complete — #14, #15, #16, #32 merged; #9, #31 closed",
     "justification": "Launch blockers clear. Process note: merged before review complete, will wait for approval next time"
+  },
+  {
+    "timestamp": "2026-02-06T18:57:30Z",
+    "agent": "Architect",
+    "action": "Added INFRASTRUCTURE DECISIONS table to MANIFEST.md",
+    "justification": "Analyst flagged terminology drift pattern - second incident today. Table provides single source of truth for stack decisions."
+  },
+  {
+    "timestamp": "2026-02-06T18:58:00Z",
+    "agent": "Architect",
+    "action": "Legacy assessment",
+    "justification": "Identified db/ folder as obsolete TypeScript/Drizzle setup, Python be/ folder is the active backend. Prepared cleanup plan for docs and legacy code."
+  },
+  {
+    "timestamp": "2026-02-06T19:02:00Z",
+    "agent": "Architect",
+    "action": "Created TopicInputModal component + wired up custom topic feature",
+    "justification": "Feature: presets with requires_input:true now show topic input modal before bout creation. Validation: non-empty, ≤280 chars, ≤1024 bytes."
+  },
+  {
+    "timestamp": "2026-02-06T19:18:00Z",
+    "agent": "Architect",
+    "action": "Resolved merge conflicts, pushed PR #37 — now mergeable",
+    "justification": "PR had CONFLICTING status due to HANDOFF.md divergence. Merged main into branch, resolved conflict taking latest state, force-pushed. Ready for Critic review."
+  },
+  {
+    "timestamp": "2026-02-06T19:25:00Z",
+    "agent": "Architect",
+    "action": "Deleted db/ folder (TypeScript/Drizzle), updated 4 docs to PostgreSQL/SQLAlchemy",
+    "justification": "Commit 4735956d. Legacy cleanup — removing obsolete TS stack to eliminate confusion."
+  },
+  {
+    "timestamp": "2026-02-06T19:26:30Z",
+    "agent": "Architect",
+    "action": "Confirmed tests green, pushed branch, notified Critic for re-review",
+    "justification": "22/22 tests passing. PR #37 ready for final review. STOP mode — no merge until Kai returns."
+  },
+  {
+    "timestamp": "2026-02-06T19:38:00Z",
+    "agent": "Architect",
+    "action": "Created OpenAPI spec: docs/api/debate-arena.yaml",
+    "justification": "API contract definition. Includes: bout CRUD, character endpoints, async status, auth stubs, standardized errors. All architectural decisions documented in-spec with TODOs for future work."
+  },
+  {
+    "timestamp": "2026-02-06T19:49:00Z",
+    "agent": "Architect",
+    "action": "fix: react-hooks/set-state-in-effect lint error in TopicInputModal.tsx",
+    "justification": "Critic flagged lint error blocking PR #37 merge. Moved setState from useEffect to handleClose callback. Same behavior, lint-clean."
+  },
+  {
+    "timestamp": "2026-02-06T19:55:00Z",
+    "agent": "Strategist",
+    "action": "Approved PR #37 after code review verification",
+    "justification": "Verified extraction to fe/lib/topic-validation.ts. Component and tests import from shared module. No duplication. Clean refactor."
   }
 ]
+{"timestamp":"2026-02-08T01:15:00Z","agent":"architect","action":"SSE content streaming","justification":"Eliminated frontend refetch pattern by including message content in turn_end SSE events. Turn-level streaming complete. Token-level deferred to post-MVP."}

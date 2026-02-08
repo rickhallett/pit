@@ -9,9 +9,9 @@ Turn Types:
 - broadcast: Presenter → [Responders] → Presenter... (asymmetric)
 """
 
-from enum import Enum
-from typing import TypedDict, Optional
 from dataclasses import dataclass
+from enum import Enum
+from typing import Optional, TypedDict
 
 
 class TurnType(str, Enum):
@@ -57,7 +57,7 @@ PRESETS: dict[str, PresetConfig] = {
         default_rounds=4,
         free_tier=True,
     ),
-    
+
     "on_the_couch": PresetConfig(
         id="on_the_couch",
         name="On The Couch",
@@ -71,7 +71,7 @@ PRESETS: dict[str, PresetConfig] = {
         default_rounds=6,
         free_tier=True,
     ),
-    
+
     "gloves_off": PresetConfig(
         id="gloves_off",
         name="Gloves Off",
@@ -101,7 +101,7 @@ PRESETS: dict[str, PresetConfig] = {
         default_rounds=4,
         free_tier=False,
     ),
-    
+
     "first_contact": PresetConfig(
         id="first_contact",
         name="First Contact",
@@ -116,7 +116,7 @@ PRESETS: dict[str, PresetConfig] = {
         default_rounds=4,
         free_tier=False,
     ),
-    
+
     "writers_room": PresetConfig(
         id="writers_room",
         name="Writers Room",
@@ -131,7 +131,7 @@ PRESETS: dict[str, PresetConfig] = {
         default_rounds=4,
         free_tier=False,
     ),
-    
+
     "the_flatshare": PresetConfig(
         id="the_flatshare",
         name="The Flatshare",
@@ -146,7 +146,7 @@ PRESETS: dict[str, PresetConfig] = {
         default_rounds=4,
         free_tier=False,
     ),
-    
+
     "last_supper": PresetConfig(
         id="last_supper",
         name="Last Supper",
@@ -162,7 +162,7 @@ PRESETS: dict[str, PresetConfig] = {
         default_rounds=4,
         free_tier=False,
     ),
-    
+
     "the_mansion": PresetConfig(
         id="the_mansion",
         name="The Mansion",
@@ -195,7 +195,7 @@ PRESETS: dict[str, PresetConfig] = {
         default_rounds=3,
         free_tier=False,
     ),
-    
+
     "the_summit": PresetConfig(
         id="the_summit",
         name="The Summit",

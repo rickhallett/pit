@@ -39,7 +39,7 @@ Pick a preset (Socrates vs Nietzsche vs Ayn Rand? Darwin vs a conspiracy theoris
 
 Launching on Darwin Day because natural selection.
 
-Tech: Next.js 15 / Turso / Anthropic API / SSE streaming
+Tech: Next.js 15 / PostgreSQL / Anthropic API / SSE streaming
 
 Free to try — no signup required.
 

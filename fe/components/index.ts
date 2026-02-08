@@ -8,4 +8,5 @@ export { default as PresetCard } from "./PresetCard";
 export { default as BattleArena } from "./BattleArena";
 export { default as ShareCard } from "./ShareCard";
 export { ShareModal } from "./ShareModal";
+export { TopicInputModal } from "./TopicInputModal";
 export { WaitlistForm } from "./WaitlistForm";
