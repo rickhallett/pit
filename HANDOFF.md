@@ -1,110 +1,75 @@
 # HANDOFF.md — The Sticky Note
 
 **From:** Architect 📐
-**Date:** 2026-02-06T19:38:00Z
-**Status:** API spec drafted — contract locked
+**Date:** 2026-02-08T01:15:00Z
+**Status:** SSE content streaming complete
 
 ---
 
 ## What Just Happened
 
-**OpenAPI spec created: `docs/api/debate-arena.yaml`**
+**SSE turn_end now includes message content**
 
-Full API contract covering:
-- `POST /bouts` — Create debate (async, returns pending status)
-- `GET /bouts/{id}` — Poll for completion, get rounds
-- `GET /characters` — List available characters
-- `GET /characters/{id}` — Character details
+- Modified `on_turn_end` callback signature to include `content` parameter
+- Orchestrator now passes `result.content` when emitting turn_end events
+- Frontend uses content from SSE event directly (eliminated refetch)
+- Commits: `d3bf4446`, `23a9bb9c`
 
-Key decisions embedded in spec:
-- Bout status: `pending | generating | complete | failed`
-- Rounds embedded on bout (not separate collection)
-- Participants denormalized (name, avatar copied at creation)
-- Auth: Optional bearer token, anonymous MVP with IP rate limiting
-- Errors: Standardized shape with `error`, `code`, `details`, `request_id`
-- Input: `user_input` max 500 chars, sanitized at storage, encoded at render
+**What this fixes:**
+- `CRITIC:DEBT — Refetching entire bout on each turn` → RESOLVED
+- Frontend no longer makes N extra API calls during bout (one per turn)
 
-TODOs flagged in spec:
-- Content moderation if shares go public
-- Rate limiting improvements for shared networks
+**What's still deferred (post-MVP):**
+- Token-by-token streaming (uses `run_streaming()` which exists but is unwired)
+- Async orchestrator for true real-time event yielding
 
-**Previous: Legacy TypeScript/Drizzle stack removed.** Commit `4735956d`:
-- Deleted `db/` folder (14 files, -3,172 lines of obsolete code)
-- Updated 4 docs to reflect PostgreSQL/SQLAlchemy/Railway stack
-- Resolved PostgreSQL vs SQLite confusion in #ops thread (PostgreSQL confirmed)
+## Previous Session (2026-02-06)
 
-**Previous: XSS protection implemented per HAL spec.** Sanitization now strips:
-- Script/style tags WITH their contents
-- Remaining HTML tags
-- Control characters
-- Excess whitespace
-
-**vitest added to frontend.** 22 tests passing:
-- Boundary cases (0, 1, 280, 281 chars)
-- Whitespace-only rejection
-- HTML tag stripping (`<script>alert('xss')</script>test` → `test`)
-- Self-closing tags
-- Control character stripping
-- Emoji handling
-
-| Item | Status |
-|------|--------|
-| TopicInputModal component | ✅ Complete |
-| XSS protection | ✅ Implemented |
-| Validation tests | ✅ 22 passing |
-| vitest setup | ✅ Added |
-| PR #37 | 🟡 Updated, ready for review |
-| Legacy db/ cleanup | ✅ Deleted |
-| Docs updated | ✅ 4 files |
+- API spec drafted (`docs/api/debate-arena.yaml`)
+- Legacy TypeScript/Drizzle cleanup done
+- XSS protection + 22 tests passing
+- PR #37 ready for review
 
 ## Current State
 
 | Item | Status |
 |------|--------|
 | Branch | `feat/custom-topic-input` |
-| Latest commit | `4735956d` |
-| Tests | All 22 passing |
-| PR | #37 (updated) |
-| Launch blockers | None |
+| Latest commits | `23a9bb9c` (style), `d3bf4446` (SSE content) |
+| Tests | 11 BE passed, 20 FE passed |
+| Lint | Clean |
+| TypeCheck | Clean |
+| Launch blockers | See below |
+
+## Sprint Blockers (from MANIFEST)
+
+| Blocker | Status |
+|---------|--------|
+| Frontend bout view with SSE streaming | ✅ Turn-level done, token-level deferred |
+| Cost ceiling implementation | ✅ Already exists in orchestrator |
+| Schema migrations | ❓ Need to verify what's pending |
+| Landing page copy | 📝 Marketing task |
 
 ## What's Next
 
-1. Push to remote (if not auto-pushed)
-2. Request final review on PR #37
-3. Merge to main
-4. **Launch: Feb 12**
+1. Check schema migrations status (`alembic current` vs `alembic heads`)
+2. Merge PR #37 if approved
+3. Smoke test SSE streaming end-to-end
+4. Landing page copy (Strategist's domain?)
 
 ## Open PRs
 
 | PR | Description | Status |
 |----|-------------|--------|
-| #37 | Custom topic input modal + XSS protection | 🟡 Ready for review |
+| #37 | Custom topic input modal + XSS protection | 🟡 Ready for review (updated with SSE fix) |
 | #30 | Skip index.json | ✅ LGTM |
 | #28 | Test assertion | ✅ LGTM |
-
-## HAL Spec Compliance
-
-```
-HAL's test requirements:
-1. Boundary cases (0, 1, 280, 281 chars) ✓
-2. Whitespace-only rejection ✓
-3. HTML tag stripping ✓
-4. Output encoding verification — handled by React (auto-escapes)
-```
 
 ## Deploy Stack
 
 - **BE:** FastAPI on Railway (PostgreSQL)
 - **FE:** Next.js on Vercel
 - **DNS:** Cloudflare (pending)
-
-## Future Work (Post-MVP)
-
-Per Strategist's analysis — not blocking launch, but track for public release:
-
-- **Rate limiting per user** — abuse mitigation (FastAPI middleware or Railway infra)
-- **Content audit logging** — extend `metrics.log_event()` to capture topic content
-- **ToS liability shift** — legal/copy work, plumbing exists
 
 ---
 
