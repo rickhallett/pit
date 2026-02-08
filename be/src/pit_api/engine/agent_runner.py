@@ -1,7 +1,6 @@
 """AgentRunner — wraps Anthropic API for model-agnostic agent execution."""
 
 import time  # CRITIC:PERF — Moved to top-level (was imported inside run())
-
 from dataclasses import dataclass
 from typing import Iterator
 
