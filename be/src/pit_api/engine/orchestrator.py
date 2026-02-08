@@ -34,7 +34,7 @@ class OrchestratorEvents:
     # TODO: on_token is unused until streaming is implemented via AgentRunner.run_streaming()
     # CRITIC:DEBT — Unused callback. Wire up when implementing token-by-token streaming.
     on_token: Callable[[str, str], None] | None = None  # bout_id, token
-    on_turn_end: Callable[[str, str, int, str], None] | None = None  # bout_id, agent, turn, msg_id
+    on_turn_end: Callable[[str, str, int, str, str], None] | None = None  # bout_id, agent, turn, msg_id, content
     on_bout_complete: Callable[[str, float], None] | None = None  # bout_id, total_cost
     on_error: Callable[[str, str], None] | None = None  # bout_id, error_message
 
@@ -62,18 +62,18 @@ class Orchestrator:
 
     def _get_turns_for_tier(self, tier: str, preset_max_turns: dict | None = None) -> int:
         """Map tier name to turn count.
-        
+
         Args:
             tier: Model tier (standard, juiced, unleashed)
             preset_max_turns: Optional per-preset turn overrides
-            
+
         Returns:
             Turn count for the tier, preferring preset override if available
         """
         # If preset has specific max_turns for this tier, use it
         if preset_max_turns and tier in preset_max_turns:
             return preset_max_turns[tier]
-        
+
         # Fall back to global config
         return {
             "standard": config.TURNS_STANDARD,
@@ -160,14 +160,14 @@ class Orchestrator:
             # Initialize components (inside try so failures mark bout as error)
             model = self._get_model_for_tier(bout.model_tier)
             cost_ceiling = self._get_cost_ceiling_for_tier(bout.model_tier)
-            
+
             # Load preset's max_turns if available
             preset_max_turns = None
             if bout.preset_id:
                 preset = preset_loader.load_one(bout.preset_id)
                 if preset and preset.max_turns:
                     preset_max_turns = preset.max_turns
-            
+
             max_turns = self._get_turns_for_tier(bout.model_tier, preset_max_turns)
 
             runner = AgentRunner(model=model)
@@ -215,9 +215,9 @@ class Orchestrator:
                     # Advance turn
                     turn_manager.advance_turn(result.content)
 
-                    # Emit turn end event
+                    # Emit turn end event (with content for SSE streaming)
                     if self.events.on_turn_end:
-                        self.events.on_turn_end(bout.id, agent.name, turn_num, message.id)
+                        self.events.on_turn_end(bout.id, agent.name, turn_num, message.id, result.content)
 
                     # Check budget — end gracefully if ceiling hit
                     if meter.is_over_budget():

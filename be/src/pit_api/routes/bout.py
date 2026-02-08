@@ -159,8 +159,8 @@ async def stream_bout(bout_id: str):
 
     Event types:
     - turn_start: {agent_name, turn_number}
-    - token: {token}
-    - turn_end: {agent_name, turn_number, message_id}
+    - token: {token} (TODO: not implemented yet)
+    - turn_end: {agent_name, turn_number, message_id, content}
     - bout_complete: {bout_id, total_cost}
     - error: {code, message}
     """
@@ -218,9 +218,9 @@ async def stream_bout(bout_id: str):
             def on_turn_start(bid, name, turn):
                 events_list.append(("turn_start", {"agent_name": name, "turn_number": turn}))
 
-            def on_turn_end(bid, name, turn, msg_id):
+            def on_turn_end(bid, name, turn, msg_id, content):
                 events_list.append(
-                    ("turn_end", {"agent_name": name, "turn_number": turn, "message_id": msg_id})
+                    ("turn_end", {"agent_name": name, "turn_number": turn, "message_id": msg_id, "content": content})
                 )
 
             def on_complete(bid, cost):

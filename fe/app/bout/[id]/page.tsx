@@ -84,21 +84,15 @@ export default function BoutPage() {
       const data = JSON.parse(e.data);
       console.log("Turn end:", data);
       
-      // Fetch the complete message from the API
-      // In a real implementation, you'd get the message content from the stream
-      // For now, we'll refetch the bout to get updated messages
-      // CRITIC:DEBT — Refetching entire bout on each turn. Include content in SSE events instead.
-      getBout(boutId).then((updatedBout) => {
-        if (updatedBout.messages) {
-          setStreamMessages(
-            updatedBout.messages.map((m) => ({
-              agent_name: m.agent_name,
-              content: m.content,
-              turn_number: m.turn_number,
-            }))
-          );
-        }
-      });
+      // Content now included in SSE event — no refetch needed
+      setStreamMessages((prev) => [
+        ...prev,
+        {
+          agent_name: data.agent_name,
+          content: data.content,
+          turn_number: data.turn_number,
+        },
+      ]);
       
       setCurrentTurn(null);
     });
